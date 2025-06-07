@@ -52,7 +52,7 @@ export const Hero = ({getHero}) => {
                         {getHero ? (
                            <h1 className="display-4 text-white mb-4 animated slideInRight"> {getHero} </h1>
                         ):(<>
-                         <div className="btn btn-sm border rounded-pill text-white px-3 mb-3 animated slideInRight">Prakash Tech</div>
+                         <div className="btn btn-sm border rounded-pill text-white px-3 mb-3 animated slideInRight">Praksh Tech</div>
                         <h1 className="display-4 text-white mb-4 animated slideInRight">Artificial Intelligence for Your Business</h1>
                         <p className="text-white mb-4 animated slideInRight">Tempor rebum no at dolore lorem clita rebum rebum ipsum
                             rebum stet dolor sed justo kasd. Ut dolor sed magna dolor sea diam. Sit diam sit</p>
