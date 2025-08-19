@@ -21,7 +21,7 @@ export const Navbar = () => {
                             <Link to="/about" className="nav-item nav-Link">About</Link>
                             <Link to="/service" className="nav-item nav-Link">Services</Link>
                             <Link to="/career" className="nav-item nav-Link">Career</Link>
-                            <div className="nav-item dropdown">
+                            {/* <div className="nav-item dropdown">
                                 <Link to="#" className="nav-Link dropdown-toggle" data-bs-toggle="dropdown">Pages</Link>
                                 <div className="dropdown-menu bg-light mt-2">
                                     <Link to="feature" className="dropdown-item">Features</Link>
@@ -30,7 +30,7 @@ export const Navbar = () => {
                                     <Link to="testimonial" className="dropdown-item">Testimonial</Link>
                           
                                 </div>
-                            </div>
+                            </div> */}
                             <Link to="/contact" className="nav-item nav-Link">Contact</Link>
                         </div>
                         <button type="button" className="btn text-white p-0 d-none d-lg-block" data-bs-toggle="modal"
@@ -59,8 +59,8 @@ export const Hero = ({getHero}) => {
                         </>)
                         }
                        
-                        <Link to="" className="btn btn-light py-sm-3 px-sm-5 rounded-pill me-3 animated slideInRight">Read More</Link>
-                        <Link to="" className="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill animated slideInRight">Contact Us</Link>
+                        <Link to="/" className="btn btn-light py-sm-3 px-sm-5 rounded-pill me-3 animated slideInRight">Read More</Link>
+                        <Link to="/contact" className="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill animated slideInRight">Contact Us</Link>
                     </div>
                     <div className="col-lg-6 align-self-end text-center text-lg-end">
                         <img className="img-fluid" src={heroImg} alt="" />
