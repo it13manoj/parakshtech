@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import aboutImg from "../img/about-img.jpg"
 import feature from "../img/feature.png"
@@ -13,6 +13,8 @@ import testimonial1 from "../img/testimonial-1.jpg"
 import testimonial2 from "../img/testimonial-2.jpg"
 import testimonial3 from "../img/testimonial-3.jpg"
 import newsletter from "../img/newsletter.png"
+import { Hero } from "./Header";
+import Footer from "./Footer";
 
 
 export const Abouts = () => {
@@ -33,20 +35,21 @@ export const Abouts = () => {
                         <div className="btn btn-sm border rounded-pill text-primary px-3 mb-3">About Us</div>
                         <h1 className="mb-4">We Make Your Business Smarter with Artificial Intelligence</h1>
                         <p className="mb-4">
-                            Tempor erat elitr rebum at clita. Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam et eos labore.
-                            Clita erat ipsum et lorem et sit, sed stet no labore lorem sit. Sanctus clita duo justo et tempor eirmod magna dolore erat amet
+                            we specialize in delivering innovative software solutions that empower businesses to grow and succeed in the digital era. By combining advanced Artificial Intelligence, modern web development, and cloud technologies, we help organizations streamline operations, enhance decision-making, and improve customer engagement.
+
+
                         </p>
                         <p className="mb-4">
-                            Aliqu diam amet diam et eos labore. Clita erat ipsum et lorem et sit, sed stet no labore lorem sit. Sanctus clita duo justo et tempor.
+                            We are committed to providing scalable, secure, and cost-effective solutions tailored to meet your unique business needs.
                         </p>
                         <div className="row g-3">
                             <div className="col-sm-6">
-                                <h6 className="mb-3"><i className="fa fa-check text-primary me-2"></i>Award Winning</h6>
-                                <h6 className="mb-0"><i className="fa fa-check text-primary me-2"></i>Professional Staff</h6>
+                                <h6 className="mb-3"><i className="fa fa-check text-primary me-2"></i>Award-Winning Solutions</h6>
+                                <h6 className="mb-0"><i className="fa fa-check text-primary me-2"></i>Professional & Experienced Team</h6>
                             </div>
                             <div className="col-sm-6">
-                                <h6 className="mb-3"><i className="fa fa-check text-primary me-2"></i>24/7 Support</h6>
-                                <h6 className="mb-0"><i className="fa fa-check text-primary me-2"></i>Fair Prices</h6>
+                                <h6 className="mb-3"><i className="fa fa-check text-primary me-2"></i>24/7 Customer Support</h6>
+                                <h6 className="mb-0"><i className="fa fa-check text-primary me-2"></i>Fair & Transparent Pricing</h6>
                             </div>
                         </div>
 
@@ -116,13 +119,11 @@ export const Services = () => {
                             Our Excellent AI Solutions for Your Business
                         </h1>
                         <p className="mb-4">
-                            Tempor erat elitr rebum at clita. Diam dolor diam ipsum et tempor sit. Aliqu diam
-                            amet diam et eos labore. Clita erat ipsum et lorem et sit, sed stet no labore lorem
-                            sit. Sanctus clita duo justo et tempor eirmod magna dolore erat amet
+                            we design and deliver cutting-edge Artificial Intelligence solutions tailored to your business needs. From data-driven insights and predictive analytics to intelligent automation and customer experience enhancement, our AI-powered tools help you make smarter decisions, optimize workflows, and accelerate growth.
                         </p>
-                        <Link className="btn btn-primary rounded-pill px-4" to="">
+                        {/* <Link className="btn btn-primary rounded-pill px-4" to="">
                             Read More
-                        </Link>
+                        </Link> */}
                     </div>
                     <div className="col-lg-7">
                         <div className="row g-4">
@@ -135,12 +136,11 @@ export const Services = () => {
                                             </div>
                                             <h5 className="mb-3">Robotic Automation</h5>
                                             <p>
-                                                Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem sed diam stet
-                                                diam sed stet lorem.
+                                                we harness the power of Robotic Process Automation (RPA) to streamline repetitive tasks, reduce errors, and improve efficiency. Our automation solutions help businesses save time, cut costs, and focus on innovation while routine operations run seamlessly in the background.
                                             </p>
-                                            <Link className="btn px-3 mt-auto mx-auto" to="">
+                                            {/* <Link className="btn px-3 mt-auto mx-auto" to="">
                                                 Read More
-                                            </Link>
+                                            </Link> */}
                                         </div>
                                     </div>
                                     <div className="col-12 wow fadeIn" data-wow-delay="0.5s">
@@ -150,12 +150,11 @@ export const Services = () => {
                                             </div>
                                             <h5 className="mb-3">Machine Learning</h5>
                                             <p>
-                                                Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem sed diam stet
-                                                diam sed stet lorem.
+                                                we develop Machine Learning solutions that enable businesses to learn from data, predict outcomes, and make smarter decisions. Our ML models power everything from recommendation systems and fraud detection to process automation and customer behavior analysis, helping you stay ahead in a competitive digital world.
                                             </p>
-                                            <Link className="btn px-3 mt-auto mx-auto" to="">
+                                            {/* <Link className="btn px-3 mt-auto mx-auto" to="">
                                                 Read More
-                                            </Link>
+                                            </Link> */}
                                         </div>
                                     </div>
                                 </div>
@@ -169,12 +168,11 @@ export const Services = () => {
                                             </div>
                                             <h5 className="mb-3">Education & Science</h5>
                                             <p>
-                                                Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem sed diam stet
-                                                diam sed stet lorem.
+                                                we leverage technology and Artificial Intelligence to transform learning and research. Our solutions empower educators, students, and researchers with smart tools that simplify complex tasks, enhance collaboration, and make knowledge more accessible. From e-learning platforms to data-driven research systems, we help shape the future of education and science through innovation.
                                             </p>
-                                            <Link className="btn px-3 mt-auto mx-auto" to="">
+                                            {/* <Link className="btn px-3 mt-auto mx-auto" to="">
                                                 Read More
-                                            </Link>
+                                            </Link> */}
                                         </div>
                                     </div>
                                     <div className="col-12 wow fadeIn" data-wow-delay="0.7s">
@@ -184,12 +182,11 @@ export const Services = () => {
                                             </div>
                                             <h5 className="mb-3">Predictive Analysis</h5>
                                             <p>
-                                                Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem sed diam stet
-                                                diam sed stet lorem.
+                                                we provide Predictive Analytics solutions that transform raw data into actionable insights. By analyzing patterns, trends, and historical data, our solutions help businesses forecast future outcomes, optimize decision-making, reduce risks, and identify new opportunities for growth.
                                             </p>
-                                            <Link className="btn px-3 mt-auto mx-auto" to="">
+                                            {/* <Link className="btn px-3 mt-auto mx-auto" to="">
                                                 Read More
-                                            </Link>
+                                            </Link> */}
                                         </div>
                                     </div>
                                 </div>
@@ -205,292 +202,295 @@ export const Services = () => {
 
 
 export const Feature = () => {
+
     return (
+        <> 
+      
 
-        <div className="container-fluid bg-primary feature pt-5">
-            <div className="container pt-5">
-                <div className="row g-5">
-                    {/* Left Column */}
-                    <div
-                        className="col-lg-6 align-self-center mb-md-5 pb-md-5 wow fadeIn"
-                        data-wow-delay="0.3s"
-                    >
-                        <div className="btn btn-sm border rounded-pill text-white px-3 mb-3">
-                            Why Choose Us
-                        </div>
-                        <h1 className="text-white mb-4">
-                            We're Best in AI Industry with 10 Years of Experience
-                        </h1>
-                        <p className="text-light mb-4">
-                            Aliqu diam amet diam et eos labore. Clita erat ipsum et lorem et
-                            sit, sed stet no labore lorem sit. Sanctus clita duo justo et
-                            tempor
-                        </p>
-
-                        {/* Feature List */}
-                        {[1, 2, 3].map((item, index) => (
-                            <div
-                                className="d-flex align-items-center text-white mb-3"
-                                key={index}
-                            >
-                                <div className="btn-sm-square bg-white text-primary rounded-circle me-3">
-                                    <i className="fa fa-check"></i>
-                                </div>
-                                <span>Diam dolor diam ipsum et tempor sit</span>
+            <div className="container-fluid  pt-5">
+                <div className="container pt-5">
+                    <div className="row g-5">
+                        {/* Left Column */}
+                        <div
+                            className="col-lg-6 align-self-center mb-md-5 pb-md-5 wow fadeIn"
+                            data-wow-delay="0.3s"
+                        >
+                            <div className="btn btn-sm border rounded-pill text-black px-3 mb-3">
+                                Why Choose Us
                             </div>
-                        ))}
+                            <h1 className="text-black mb-4">
+                                We're Best in AI Industry with Experience
+                            </h1>
+                            <p className="text-black mb-4">
+                                we bring years of expertise in Artificial Intelligence and advanced software development. Our team is dedicated to delivering innovative, reliable, and scalable solutions that help businesses stay ahead in the digital age.
+                            </p>
 
-                        {/* Counters */}
-                        <div className="row g-4 pt-3">
-                            <div className="col-sm-6">
+                            {/* Feature List */}
+                            {["Deep expertise in Artificial Intelligence & Machine Learning", "Proven track record of successful projects across industries", "Commitment to innovation, quality, and long-term value", "Client-focused approach with transparent delivery"].map((item, index) => (
                                 <div
-                                    className="d-flex rounded p-3"
-                                    style={{ background: "rgba(255, 255, 255, 0.1)" }}
+                                    className="d-flex align-items-center text-black mb-3"
+                                    key={index}
                                 >
-                                    <i className="fa fa-users fa-3x text-white"></i>
-                                    <div className="ms-3">
-                                        <h2 className="text-white mb-0" data-toggle="counter-up">
-                                            9999
-                                        </h2>
-                                        <p className="text-white mb-0">Happy Clients</p>
+                                    <div className="btn-sm-square bg-black text-primary rounded-circle me-3">
+                                        <i className="fa fa-check"></i>
+                                    </div>
+                                    <span>{item}</span>
+                                </div>
+                            ))}
+
+                            {/* Counters */}
+                            <div className="row g-4 pt-3">
+                                <div className="col-sm-6">
+                                    <div
+                                        className="d-flex rounded p-3"
+                                        style={{ background: "rgb(29 122 237)" }}
+                                    >
+                                        <i className="fa fa-users fa-3x text-white"></i>
+                                        <div className="ms-3">
+                                            <h2 className="text-white mb-0" data-toggle="counter-up">
+                                                10
+                                            </h2>
+                                            <p className="text-white mb-0">Happy Clients</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-sm-6">
+                                    <div
+                                        className="d-flex rounded p-3"
+                                        style={{ background: "rgb(29 122 237)" }}
+                                    >
+                                        <i className="fa fa-check fa-3x text-white"></i>
+                                        <div className="ms-3">
+                                            <h2 className="text-white mb-0" data-toggle="counter-up">
+                                                10
+                                            </h2>
+                                            <p className="text-white mb-0">Project Complete</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-sm-6">
-                                <div
-                                    className="d-flex rounded p-3"
-                                    style={{ background: "rgba(255, 255, 255, 0.1)" }}
-                                >
-                                    <i className="fa fa-check fa-3x text-white"></i>
-                                    <div className="ms-3">
-                                        <h2 className="text-white mb-0" data-toggle="counter-up">
-                                            9999
-                                        </h2>
-                                        <p className="text-white mb-0">Project Complete</p>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-                    </div>
 
-                    {/* Right Column (Image) */}
-                    <div
-                        className="col-lg-6 align-self-end text-center text-md-end wow fadeIn"
-                        data-wow-delay="0.5s"
-                    >
-                        <img className="img-fluid" src={feature} alt="" />
+                        {/* Right Column (Image) */}
+                        <div
+                            className="col-lg-6 align-self-end text-center text-md-end wow fadeIn"
+                            data-wow-delay="0.5s"
+                        >
+                            <img className="img-fluid" src={feature} alt="" />
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+             
+        </>
     )
 }
 
 
 export const Case = () => {
     return (
+        <></>
+        // <div className="container-fluid bg-light py-5">
+        //     <div className="container py-5">
+        //         {/* Section Header */}
+        //         <div
+        //             className="mx-auto text-center wow fadeIn"
+        //             data-wow-delay="0.1s"
+        //             style={{ maxWidth: "500px" }}
+        //         >
+        //             <div className="btn btn-sm border rounded-pill text-primary px-3 mb-3">
+        //                 Case Study
+        //             </div>
+        //             <h1 className="mb-4">Explore Our Recent AI Case Studies</h1>
+        //         </div>
 
-        <div className="container-fluid bg-light py-5">
-            <div className="container py-5">
-                {/* Section Header */}
-                <div
-                    className="mx-auto text-center wow fadeIn"
-                    data-wow-delay="0.1s"
-                    style={{ maxWidth: "500px" }}
-                >
-                    <div className="btn btn-sm border rounded-pill text-primary px-3 mb-3">
-                        Case Study
-                    </div>
-                    <h1 className="mb-4">Explore Our Recent AI Case Studies</h1>
-                </div>
+        //         {/* Case Items */}
+        //         <div className="row g-4">
+        //             {/* Case 1 */}
+        //             <div className="col-lg-4 wow fadeIn" data-wow-delay="0.3s">
+        //                 <div className="case-item position-relative overflow-hidden rounded mb-2">
+        //                     <img className="img-fluid" src={project1} alt="" />
+        //                     <Link className="case-overlay text-decoration-none" to="">
+        //                         <small>Robotic Automation</small>
+        //                         <h5 className="lh-base text-white mb-3">
+        //                            Automate repetitive tasks and boost efficiency with our Robotic Process Automation (RPA) solutions. We help businesses save time, reduce errors, and focus on growth while routine operations run seamlessly.
+        //                         </h5>
+        //                         <span className="btn btn-square btn-primary">
+        //                             <i className="fa fa-arrow-right"></i>
+        //                         </span>
+        //                     </Link>
+        //                 </div>
+        //             </div>
 
-                {/* Case Items */}
-                <div className="row g-4">
-                    {/* Case 1 */}
-                    <div className="col-lg-4 wow fadeIn" data-wow-delay="0.3s">
-                        <div className="case-item position-relative overflow-hidden rounded mb-2">
-                            <img className="img-fluid" src={project1} alt="" />
-                            <Link className="case-overlay text-decoration-none" to="">
-                                <small>Robotic Automation</small>
-                                <h5 className="lh-base text-white mb-3">
-                                    Lorem elitr magna stet eirmod labore amet labore clita
-                                </h5>
-                                <span className="btn btn-square btn-primary">
-                                    <i className="fa fa-arrow-right"></i>
-                                </span>
-                            </Link>
-                        </div>
-                    </div>
+        //             {/* Case 2 */}
+        //             <div className="col-lg-4 wow fadeIn" data-wow-delay="0.5s">
+        //                 <div className="case-item position-relative overflow-hidden rounded mb-2">
+        //                     <img className="img-fluid" src={project2} alt="" />
+        //                     <Link className="case-overlay text-decoration-none" to="">
+        //                         <small>Machine learning</small>
+        //                         <h5 className="lh-base text-white mb-3">
+        //                             Unlock the power of data with our Machine Learning solutions. From predictions to personalization, we help businesses make smarter decisions and stay ahead of the competition.
+        //                         </h5>
+        //                         <span className="btn btn-square btn-primary">
+        //                             <i className="fa fa-arrow-right"></i>
+        //                         </span>
+        //                     </Link>
+        //                 </div>
+        //             </div>
 
-                    {/* Case 2 */}
-                    <div className="col-lg-4 wow fadeIn" data-wow-delay="0.5s">
-                        <div className="case-item position-relative overflow-hidden rounded mb-2">
-                            <img className="img-fluid" src={project2} alt="" />
-                            <Link className="case-overlay text-decoration-none" to="">
-                                <small>Machine learning</small>
-                                <h5 className="lh-base text-white mb-3">
-                                    Lorem elitr magna stet eirmod labore amet labore clita
-                                </h5>
-                                <span className="btn btn-square btn-primary">
-                                    <i className="fa fa-arrow-right"></i>
-                                </span>
-                            </Link>
-                        </div>
-                    </div>
-
-                    {/* Case 3 */}
-                    <div className="col-lg-4 wow fadeIn" data-wow-delay="0.7s">
-                        <div className="case-item position-relative overflow-hidden rounded mb-2">
-                            <img className="img-fluid" src={project3} alt="" />
-                            <Link className="case-overlay text-decoration-none" to="">
-                                <small>Predictive Analysis</small>
-                                <h5 className="lh-base text-white mb-3">
-                                    Lorem elitr magna stet eirmod labore amet labore clita
-                                </h5>
-                                <span className="btn btn-square btn-primary">
-                                    <i className="fa fa-arrow-right"></i>
-                                </span>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        //             {/* Case 3 */}
+        //             <div className="col-lg-4 wow fadeIn" data-wow-delay="0.7s">
+        //                 <div className="case-item position-relative overflow-hidden rounded mb-2">
+        //                     <img className="img-fluid" src={project3} alt="" />
+        //                     <Link className="case-overlay text-decoration-none" to="">
+        //                         <small>Predictive Analysis</small>
+        //                         <h5 className="lh-base text-white mb-3">
+        //                            Turn data into foresight with our Predictive Analytics solutions. We help businesses forecast trends, reduce risks, and make data-driven decisions for future growth.
+        //                         </h5>
+        //                         <span className="btn btn-square btn-primary">
+        //                             <i className="fa fa-arrow-right"></i>
+        //                         </span>
+        //                     </Link>
+        //                 </div>
+        //             </div>
+        //         </div>
+        //     </div>
+        // </div>
     )
 }
 
 
 export const FAQs = () => {
     return (
+        <></>
+        // <div className="container-fluid py-5">
+        //     <div className="container py-5">
+        //         <div
+        //             className="mx-auto text-center wow fadeIn"
+        //             data-wow-delay="0.1s"
+        //             style={{ maxWidth: "500px" }}
+        //         >
+        //             <div className="btn btn-sm border rounded-pill text-primary px-3 mb-3">
+        //                 Popular FAQs
+        //             </div>
+        //             <h1 className="mb-4">Frequently Asked Questions</h1>
+        //         </div>
 
-        <div className="container-fluid py-5">
-            <div className="container py-5">
-                <div
-                    className="mx-auto text-center wow fadeIn"
-                    data-wow-delay="0.1s"
-                    style={{ maxWidth: "500px" }}
-                >
-                    <div className="btn btn-sm border rounded-pill text-primary px-3 mb-3">
-                        Popular FAQs
-                    </div>
-                    <h1 className="mb-4">Frequently Asked Questions</h1>
-                </div>
+        //         <div className="row">
+        //             {/* Left Column */}
+        //             <div className="col-lg-6">
+        //                 <div className="accordion" id="accordionFAQ1">
+        //                     {[
+        //                         {
+        //                             id: "One",
+        //                             question: "How to build a website?",
+        //                         },
+        //                         {
+        //                             id: "Two",
+        //                             question: "How long will it take to get a new website?",
+        //                         },
+        //                         {
+        //                             id: "Three",
+        //                             question: "Do you only create HTML websites?",
+        //                         },
+        //                         {
+        //                             id: "Four",
+        //                             question: "Will my website be mobile-friendly?",
+        //                         },
+        //                     ].map((item, index) => (
+        //                         <div
+        //                             key={item.id}
+        //                             className="accordion-item wow fadeIn"
+        //                             data-wow-delay={`${0.1 + index * 0.1}s`}
+        //                         >
+        //                             <h2 className="accordion-header" id={`heading${item.id}`}>
+        //                                 <button
+        //                                     className="accordion-button collapsed"
+        //                                     type="button"
+        //                                     data-bs-toggle="collapse"
+        //                                     data-bs-target={`#collapse${item.id}`}
+        //                                     aria-expanded="false"
+        //                                     aria-controls={`collapse${item.id}`}
+        //                                 >
+        //                                     {item.question}
+        //                                 </button>
+        //                             </h2>
+        //                             <div
+        //                                 id={`collapse${item.id}`}
+        //                                 className="accordion-collapse collapse"
+        //                                 aria-labelledby={`heading${item.id}`}
+        //                                 data-bs-parent="#accordionFAQ1"
+        //                             >
+        //                                 <div className="accordion-body">
+        //                                     Dolor nonumy tempor elitr et rebum ipsum sit duo duo. Diam sed
+        //                                     sed magna et magna diam aliquyam amet dolore ipsum erat duo.
+        //                                     Sit rebum magna duo labore no diam.
+        //                                 </div>
+        //                             </div>
+        //                         </div>
+        //                     ))}
+        //                 </div>
+        //             </div>
 
-                <div className="row">
-                    {/* Left Column */}
-                    <div className="col-lg-6">
-                        <div className="accordion" id="accordionFAQ1">
-                            {[
-                                {
-                                    id: "One",
-                                    question: "How to build a website?",
-                                },
-                                {
-                                    id: "Two",
-                                    question: "How long will it take to get a new website?",
-                                },
-                                {
-                                    id: "Three",
-                                    question: "Do you only create HTML websites?",
-                                },
-                                {
-                                    id: "Four",
-                                    question: "Will my website be mobile-friendly?",
-                                },
-                            ].map((item, index) => (
-                                <div
-                                    key={item.id}
-                                    className="accordion-item wow fadeIn"
-                                    data-wow-delay={`${0.1 + index * 0.1}s`}
-                                >
-                                    <h2 className="accordion-header" id={`heading${item.id}`}>
-                                        <button
-                                            className="accordion-button collapsed"
-                                            type="button"
-                                            data-bs-toggle="collapse"
-                                            data-bs-target={`#collapse${item.id}`}
-                                            aria-expanded="false"
-                                            aria-controls={`collapse${item.id}`}
-                                        >
-                                            {item.question}
-                                        </button>
-                                    </h2>
-                                    <div
-                                        id={`collapse${item.id}`}
-                                        className="accordion-collapse collapse"
-                                        aria-labelledby={`heading${item.id}`}
-                                        data-bs-parent="#accordionFAQ1"
-                                    >
-                                        <div className="accordion-body">
-                                            Dolor nonumy tempor elitr et rebum ipsum sit duo duo. Diam sed
-                                            sed magna et magna diam aliquyam amet dolore ipsum erat duo.
-                                            Sit rebum magna duo labore no diam.
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Right Column */}
-                    <div className="col-lg-6">
-                        <div className="accordion" id="accordionFAQ2">
-                            {[
-                                {
-                                    id: "Five",
-                                    question: "Will you maintain my site for me?",
-                                },
-                                {
-                                    id: "Six",
-                                    question:
-                                        "I’m on a strict budget. Do you have any low cost options?",
-                                },
-                                {
-                                    id: "Seven",
-                                    question: "Will you maintain my site for me?",
-                                },
-                                {
-                                    id: "Eight",
-                                    question:
-                                        "I’m on a strict budget. Do you have any low cost options?",
-                                },
-                            ].map((item, index) => (
-                                <div
-                                    key={item.id}
-                                    className="accordion-item wow fadeIn"
-                                    data-wow-delay={`${0.5 + index * 0.1}s`}
-                                >
-                                    <h2 className="accordion-header" id={`heading${item.id}`}>
-                                        <button
-                                            className="accordion-button collapsed"
-                                            type="button"
-                                            data-bs-toggle="collapse"
-                                            data-bs-target={`#collapse${item.id}`}
-                                            aria-expanded="false"
-                                            aria-controls={`collapse${item.id}`}
-                                        >
-                                            {item.question}
-                                        </button>
-                                    </h2>
-                                    <div
-                                        id={`collapse${item.id}`}
-                                        className="accordion-collapse collapse"
-                                        aria-labelledby={`heading${item.id}`}
-                                        data-bs-parent="#accordionFAQ2"
-                                    >
-                                        <div className="accordion-body">
-                                            Dolor nonumy tempor elitr et rebum ipsum sit duo duo. Diam sed
-                                            sed magna et magna diam aliquyam amet dolore ipsum erat duo.
-                                            Sit rebum magna duo labore no diam.
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        //             {/* Right Column */}
+        //             <div className="col-lg-6">
+        //                 <div className="accordion" id="accordionFAQ2">
+        //                     {[
+        //                         {
+        //                             id: "Five",
+        //                             question: "Will you maintain my site for me?",
+        //                         },
+        //                         {
+        //                             id: "Six",
+        //                             question:
+        //                                 "I’m on a strict budget. Do you have any low cost options?",
+        //                         },
+        //                         {
+        //                             id: "Seven",
+        //                             question: "Will you maintain my site for me?",
+        //                         },
+        //                         {
+        //                             id: "Eight",
+        //                             question:
+        //                                 "I’m on a strict budget. Do you have any low cost options?",
+        //                         },
+        //                     ].map((item, index) => (
+        //                         <div
+        //                             key={item.id}
+        //                             className="accordion-item wow fadeIn"
+        //                             data-wow-delay={`${0.5 + index * 0.1}s`}
+        //                         >
+        //                             <h2 className="accordion-header" id={`heading${item.id}`}>
+        //                                 <button
+        //                                     className="accordion-button collapsed"
+        //                                     type="button"
+        //                                     data-bs-toggle="collapse"
+        //                                     data-bs-target={`#collapse${item.id}`}
+        //                                     aria-expanded="false"
+        //                                     aria-controls={`collapse${item.id}`}
+        //                                 >
+        //                                     {item.question}
+        //                                 </button>
+        //                             </h2>
+        //                             <div
+        //                                 id={`collapse${item.id}`}
+        //                                 className="accordion-collapse collapse"
+        //                                 aria-labelledby={`heading${item.id}`}
+        //                                 data-bs-parent="#accordionFAQ2"
+        //                             >
+        //                                 <div className="accordion-body">
+        //                                     Dolor nonumy tempor elitr et rebum ipsum sit duo duo. Diam sed
+        //                                     sed magna et magna diam aliquyam amet dolore ipsum erat duo.
+        //                                     Sit rebum magna duo labore no diam.
+        //                                 </div>
+        //                             </div>
+        //                         </div>
+        //                     ))}
+        //                 </div>
+        //             </div>
+        //         </div>
+        //     </div>
+        // </div>
     )
 }
 
@@ -507,9 +507,7 @@ export const Team = () => {
                         <div className="btn btn-sm border rounded-pill text-primary px-3 mb-3">Our Team</div>
                         <h1 className="mb-4">Meet Our Experienced Team Members</h1>
                         <p className="mb-4">
-                            Tempor erat elitr rebum at clita. Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam et eos labore.
-                            Clita erat ipsum et lorem et sit, sed stet no labore lorem sit. Sanctus clita duo justo et tempor eirmod
-                            magna dolore erat amet
+                            At ParakshTech, our strength lies in our people. We are a team of skilled developers, AI experts, designers, and business professionals who bring passion and expertise to every project. With years of experience across multiple industries, our team is dedicated to delivering innovative solutions that help businesses succeed in the digital world.
                         </p>
                         <Link className="btn btn-primary rounded-pill px-4" to="">
                             Read More
@@ -530,7 +528,7 @@ export const Team = () => {
                                             delay: "0.1s",
                                         },
                                         {
-                                            img:team2,
+                                            img: team2,
                                             name: "Adam Crew",
                                             role: "Executive Manager",
                                             delay: "0.5s",
@@ -710,7 +708,7 @@ export const Newsletter = () => {
                                 <i className="fa fa-paper-plane text-primary fs-4"></i>
                             </button>
                         </div>
-                        <small className="text-white-50">Diam sed sed dolor stet amet eirmod</small>
+                        {/* <small className="text-white-50">Diam sed sed dolor stet amet eirmod</small> */}
                     </div>
                 </div>
             </div>

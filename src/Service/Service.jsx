@@ -12,17 +12,17 @@ function Service(){
 
         <>
             {/* <Navbar></Navbar> */}
-            <Hero></Hero>
-            <Search></Search>
-            <Abouts />
+            {/* <Hero></Hero> */}
+            {/* <Search></Search> */}
+            {/* <Abouts /> */}
             <Services />
-            <Feature />
+            {/* <Feature />
             <Case />
-            <FAQs />
-            <Team />
+            <FAQs /> */}
+            {/* <Team /> */}
             {/* <Testimonial /> */}
-            <Newsletter />
-            <Footer />
+            {/* <Newsletter />
+            <Footer /> */}
 
         
         </>

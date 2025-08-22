@@ -18,12 +18,12 @@ export const ContactForm = () => {
 
                 <div className="row justify-content-center">
                     <div className="col-lg-7">
-                        <p className="text-center mb-4">
+                        {/* <p className="text-center mb-4">
                             The contact form is currently inactive. Get a functional and working contact form with Ajax &amp; PHP in a few minutes. Just copy and paste the files, add a little code and you're done.{" "}
                             <Link to="https://htmlcodex.com/contact-form" target="_blank" rel="noopener noreferrer">
                                 Download Now
                             </Link>.
-                        </p>
+                        </p> */}
 
                         <div className="wow fadeIn" data-wow-delay="0.3s">
                             <form>

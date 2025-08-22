@@ -13,10 +13,10 @@ function Contact(){
 
         <>
             {/* <Navbar></Navbar> */}
-            <Hero></Hero>
+            {/* <Hero></Hero> */}
            <ContactForm />
-            <Newsletter />
-            <Footer />
+            {/* <Newsletter />
+            <Footer /> */}
 
         
         </>

@@ -8,16 +8,16 @@ function Footer() {
         <div className="container-fluid bg-dark text-white-50 footer pt-5">
             <div className="container py-5">
                 <div className="row g-5">
-                    <div className="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.1s">
+                    <div className="col-md-5 wow fadeIn" data-wow-delay="0.1s">
                         <Link to="index.html" className="d-inline-block mb-3">
                             <h1 className="text-white">
                                 Paraksh Tech
                             </h1>
                         </Link>
                         <p className="mb-0">
-                            Tempor erat elitr rebum at clita. Diam dolor diam ipsum et tempor sit. Aliqu diam
-                            amet diam et eos labore. Clita erat ipsum et lorem et sit, sed stet no labore lorem
-                            sit. Sanctus clita duo justo et tempor
+                           At Paraksh Tech, we are passionate about building innovative software solutions powered by Artificial Intelligence and modern technologies. Our mission is to help businesses automate processes, enhance decision-making, and accelerate digital growth with smart, scalable, and secure solutions.
+
+We believe in combining technology, creativity, and expertise to deliver meaningful results for our clients across industries. Whether it’s AI, Machine Learning, Web Development, Cloud Solutions, or Automation, we make technology work for your success.
                         </p>
                     </div>
 
@@ -35,7 +35,7 @@ function Footer() {
                         </div>
                     </div>
 
-                    <div className="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.5s">
+                    <div className="col-md-6 col-lg-2 wow fadeIn" data-wow-delay="0.5s">
                         <h5 className="text-white mb-4">Popular Link</h5>
                         <Link className="btn btn-link" to="">About Us</Link>
                         <Link className="btn btn-link" to="">Contact Us</Link>
@@ -44,7 +44,7 @@ function Footer() {
                         <Link className="btn btn-link" to="">Career</Link>
                     </div>
 
-                    <div className="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.7s">
+                    <div className="col-md-6 col-lg-2 wow fadeIn" data-wow-delay="0.7s">
                         <h5 className="text-white mb-4">Our Services</h5>
                         <Link className="btn btn-link" to="">Robotic Automation</Link>
                         <Link className="btn btn-link" to="">Machine learning</Link>
@@ -55,25 +55,6 @@ function Footer() {
                 </div>
             </div>
 
-            <div className="container wow fadeIn" data-wow-delay="0.1s">
-                <div className="copyright">
-                    <div className="row">
-                        <div className="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                            &copy; <Link className="border-bottom" to="#">Your Site Name</Link>, All Right Reserved.
-                            <br />
-                            Designed By <Link className="border-bottom" to="https://htmlcodex.com">HTML Codex</Link>
-                        </div>
-                        <div className="col-md-6 text-center text-md-end">
-                            <div className="footer-menu">
-                                <Link to="">Home</Link>
-                                <Link to="">Cookies</Link>
-                                <Link to="">Help</Link>
-                                <Link to="">FAQs</Link>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
     )

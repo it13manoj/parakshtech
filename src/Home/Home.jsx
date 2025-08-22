@@ -9,8 +9,8 @@ function  Home(){
     return (
         <>
             {/* <Navbar></Navbar> */}
-            <Hero></Hero>
-            <Search></Search>
+            {/* <Hero></Hero> */}
+            {/* <Search></Search> */}
             <Abouts />
             <Services />
             <Feature />
@@ -18,8 +18,8 @@ function  Home(){
             <FAQs />
             <Team />
             {/* <Testimonial /> */}
-            <Newsletter />
-            <Footer />
+            {/* <Newsletter />
+            <Footer /> */}
         </>
     )
 }

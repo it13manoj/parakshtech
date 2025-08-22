@@ -12,8 +12,8 @@ function Career(){
 
         <>
             {/* <Navbar></Navbar> */}
-            <Hero></Hero>
-            <Search></Search>
+            {/* <Hero></Hero> */}
+            {/* <Search></Search> */}
             <Abouts />
             <Services />
             <Feature />
@@ -21,8 +21,7 @@ function Career(){
             <FAQs />
             <Team />
             {/* <Testimonial /> */}
-            <Newsletter />
-            <Footer />
+            
 
         
         </>

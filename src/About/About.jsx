@@ -12,17 +12,17 @@ const [getHero, SetHero] =useState("About Us")
 
         <>
            
-            <Hero getHero={getHero}></Hero>
-            <Search></Search>
+            {/* <Hero getHero={getHero}></Hero> */}
+            {/* <Search></Search> */}
             <Abouts />
-            <Services />
+            {/* <Services />
             <Feature />
             <Case />
             <FAQs />
-            <Team />
+            <Team /> */}
             {/* <Testimonial /> */}
-            <Newsletter />
-            <Footer />
+            {/* <Newsletter />
+            <Footer /> */}
 
         
         </>
