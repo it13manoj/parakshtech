@@ -11,28 +11,27 @@ jobs:
 
     steps:
       - name: Check Server Host
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
         run: |
-          echo "Checking SERVER_HOST..."
+          echo "Server host: ${{ vars.SERVER_HOST }}"
 
-          if [ -z "$SERVER_HOST" ]; then
-            echo "ERROR: SERVER_HOST is EMPTY"
+          if [ -z "${{ vars.SERVER_HOST }}" ]; then
+            echo "ERROR: SERVER_HOST variable is empty"
             exit 1
           fi
 
-          echo "SERVER_HOST is configured"
-          echo "Host length: ${#SERVER_HOST}"
+          echo "SERVER_HOST is configured successfully"
 
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.SERVER_HOST }}
+          host: ${{ vars.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script_stop: true
           script: |
             set -e
+
+            echo "Connected to server successfully"
 
             cd /var/www/parakshtech.com
 
