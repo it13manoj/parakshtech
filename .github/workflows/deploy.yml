@@ -18,12 +18,30 @@ jobs:
           password: 11IT13manoj
           port: 22
           script_stop: true
+
           script: |
-            echo "SSH connection successful"
-            echo "Server hostname:"
+            set -e
+
+            echo "===== SERVER ====="
             hostname
 
-            echo "Testing directory..."
+            echo "===== PROJECT ====="
             cd /var/www/parakshtech.com
             pwd
-            ls -la
+
+            echo "===== GIT STATUS ====="
+            git status
+
+            echo "===== PULLING LATEST CODE ====="
+            git pull origin main
+
+            echo "===== INSTALLING DEPENDENCIES ====="
+            npm ci
+
+            echo "===== BUILDING APPLICATION ====="
+            npm run build
+
+            echo "===== BUILD OUTPUT ====="
+            ls -lah
+
+            echo "===== DEPLOYMENT COMPLETED ====="
