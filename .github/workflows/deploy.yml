@@ -10,28 +10,19 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Check Server Host
-        run: |
-          echo "Server host: ${{ vars.SERVER_HOST }}"
-
-          if [ -z "${{ vars.SERVER_HOST }}" ]; then
-            echo "ERROR: SERVER_HOST variable is empty"
-            exit 1
-          fi
-
-          echo "SERVER_HOST is configured successfully"
-
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ vars.SERVER_HOST }}
+          host: 173.212.235.87
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 22
           script_stop: true
           script: |
             set -e
 
-            echo "Connected to server successfully"
+            echo "SSH connection successful"
+            echo "Server: $(hostname)"
 
             cd /var/www/parakshtech.com
 
