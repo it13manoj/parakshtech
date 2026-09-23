@@ -97,7 +97,7 @@ export const Header = () => {
               </li>
               <li className="nav-item ms-lg-3 mt-3 mt-lg-0">
                 <Link to="/contact" className="pt-btn-primary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>
-                  <span>Get in Touch1</span>
+                  <span>Get in Touch</span>
                   <i className="fas fa-arrow-right" style={{ fontSize: "0.8rem" }}></i>
                 </Link>
               </li>
