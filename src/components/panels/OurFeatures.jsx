@@ -1,51 +1,132 @@
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import API from "../../Config/API";
-
+import SpotlightCard from "../common/SpotlightCard";
 
 export const OurFeatures = () => {
-    const [ourfeaturesdata, setourfeaturesdata] = useState();
-    const [ourfeaturesfet, setOurfeaturesFet] = useState();
+  const [ourfeaturesdata, setourfeaturesdata] = useState(null);
+  const [ourfeaturesfet, setOurfeaturesFet] = useState(null);
 
-    const ourfeatures = () => {
-        axios.get(`${API.BASE_URL}home-hero/OurFeatures`).then(response => {
-            setourfeaturesdata(response?.data?.data?.[0])
-            setOurfeaturesFet(response?.data?.data?.slice(1))
-        })
-    }
+  const fallbackSteps = [
+    {
+      step: "01",
+      sub_heading: "Discovery & Solution Blueprint",
+      sub_content: "We deeply audit your business goals, user personas, and technical architecture to formulate a battle-tested roadmap.",
+      icon: "fas fa-compass",
+    },
+    {
+      step: "02",
+      sub_heading: "UI/UX & Interactive Design",
+      sub_content: "Translating complex functional flows into intuitive, responsive, and visually stunning digital product experiences.",
+      icon: "fas fa-layer-group",
+    },
+    {
+      step: "03",
+      sub_heading: "Agile Fullstack Development",
+      sub_content: "Writing clean, modular, and type-safe code with automated testing, CI/CD pipelines, and continuous sprint reviews.",
+      icon: "fas fa-laptop-code",
+    },
+    {
+      step: "04",
+      sub_heading: "Cloud Launch & Continuous Scale",
+      sub_content: "Deploying across secure cloud infrastructure with real-time analytics, automated failovers, and ongoing feature iterations.",
+      icon: "fas fa-rocket",
+    },
+  ];
 
-    useEffect(() => {
-        ourfeatures()
-    }, [0])
+  useEffect(() => {
+    let isMounted = true;
+    axios
+      .get(`${API.BASE_URL}home-hero/OurFeatures`)
+      .then((response) => {
+        if (isMounted && response?.data?.data?.length) {
+          setourfeaturesdata(response.data.data[0]);
+          if (response.data.data.length > 1) {
+            setOurfeaturesFet(response.data.data.slice(1));
+          }
+        }
+      })
+      .catch(() => {});
 
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
-    return (
-        <>
-            <section className="w3l-grids-block py-5" id="features">
-                <div className="container py-lg-5 py-md-4 py-2">
-                    <div className="title-main text-center mx-auto mb-md-5 mb-4" style={{ maxwidth: "600px" }}>
-                        <h5 className="small-title mb-2">{ourfeaturesdata?.title}</h5>
-                        <h3 className="title-style">{ourfeaturesdata?.heading}</h3>
-                    </div>
-                    <div className="row justify-content-center">
-                        {ourfeaturesfet && ourfeaturesfet.map(rows => (
-                            <div className="col-lg-4 col-md-6 col-sm-10">
+  const featuresList = ourfeaturesfet && ourfeaturesfet.length > 0 ? ourfeaturesfet : fallbackSteps;
 
-                                <div className="bottom-block">
-                                    <a href="#" className="d-block">
-                                        <img src={`${API.BASE_URL_IMAGES}${rows.images}`} style={{ width: "25%" }} />
-                                        {/*<i className="fas fa-business-time"></i>*/}
-                                        <h3 className="mt-3 mb-2"> {rows?.sub_heading}</h3>
-                                        <p className="" dangerouslySetInnerHTML={{ __html: rows?.sub_content }}></p>
-                                    </a>
-                                </div>
+  return (
+    <section className="py-5" id="features" style={{ background: "#ffffff", position: "relative" }}>
+      <div className="container py-lg-5 py-4">
+        <div className="text-center mx-auto mb-5" style={{ maxWidth: "700px" }}>
+          <span className="pt-badge-live">
+            <span className="pt-live-dot"></span>
+            {ourfeaturesdata?.title || "Engineering Workflow"}
+          </span>
+          <h2 className="fw-bold mb-3 display-6" style={{ color: "#0f172a" }}>
+            {ourfeaturesdata?.heading || "How We Transform Ideas Into Market-Leading Products"}
+          </h2>
+          <p className="text-muted" style={{ fontSize: "1.05rem" }}>
+            A disciplined, transparent 4-stage engineering lifecycle designed for speed, security, and scalability.
+          </p>
+        </div>
 
-                            </div>
-                        ))}
-                       
-                    </div>
+        <div className="row g-4 justify-content-center">
+          {featuresList.map((row, idx) => (
+            <div key={idx} className="col-lg-3 col-md-6">
+              <SpotlightCard className="p-4 h-100" maxTilt={8}>
+                <div className="d-flex align-items-center justify-content-between mb-3">
+                  <div
+                    style={{
+                      width: "48px",
+                      height: "48px",
+                      borderRadius: "14px",
+                      background: "linear-gradient(135deg, rgba(245, 32, 41, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "var(--pt-primary)",
+                      fontSize: "1.25rem",
+                    }}
+                  >
+                    {row.images ? (
+                      <img
+                        src={`${API.BASE_URL_IMAGES}${row.images}`}
+                        alt={row.sub_heading}
+                        style={{ width: "24px", height: "24px", objectFit: "contain" }}
+                      />
+                    ) : (
+                      <i className={row.icon || "fas fa-star"}></i>
+                    )}
+                  </div>
+                  <span
+                    style={{
+                      fontSize: "1.4rem",
+                      fontWeight: "800",
+                      color: "#e2e8f0",
+                      fontFamily: "monospace",
+                    }}
+                  >
+                    {row.step || `0${idx + 1}`}
+                  </span>
                 </div>
-            </section>
-        </>
-    );
-}
+
+                <h4 className="fw-bold mb-2" style={{ fontSize: "1.1rem", color: "#0f172a" }}>
+                  {row?.sub_heading || row?.title}
+                </h4>
+
+                <p
+                  className="text-muted mb-0"
+                  style={{ fontSize: "0.88rem", lineHeight: "1.65" }}
+                  dangerouslySetInnerHTML={{ __html: row?.sub_content || row?.contents }}
+                ></p>
+              </SpotlightCard>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default OurFeatures;

@@ -44,22 +44,21 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
   </body>
-   <script>
+    <script>
         // When the user scrolls down 20px from the top of the document, show the button
         window.onscroll = function () {
-            scrollFunction()
+            scrollFunction();
         };
 
         function scrollFunction() {
+            const moveTopEl = document.getElementById("movetop");
+            if (!moveTopEl) return;
             if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                document.getElementById("movetop").style.display = "block";
+                moveTopEl.style.display = "block";
             } else {
-                document.getElementById("movetop").style.display = "none";
+                moveTopEl.style.display = "none";
             }
         }
-
-        // When the user clicks on the button, scroll to the top of the document
-      
     </script>
     <!-- //move top -->
 
@@ -67,52 +66,57 @@
     <script src="%PUBLIC_URL%/assets/js/jquery-3.3.1.min.js"></script>
     <!-- //common jquery plugin -->
 
-    <!-- banner slider -->
+    <!-- banner slider safe initialization -->
     <script>
         const slides = document.querySelectorAll(".slide");
         const nextButton = document.getElementById("next");
         const prevButton = document.getElementById("prev");
-        const auto = true;
-        const intervalTime = 5000;
-        let slideInterval;
 
-        const nextSlide = () => {
-            const current = document.querySelector(".current");
-            current.classList.remove("current");
-            if (current.nextElementSibling) {
-                current.nextElementSibling.classList.add("current");
-            } else {
-                slides[0].classList.add("current");
-            }
-        };
+        if (slides.length > 0 && nextButton && prevButton) {
+            const auto = true;
+            const intervalTime = 5000;
+            let slideInterval;
 
-        const prevSlide = () => {
-            const current = document.querySelector(".current");
-            current.classList.remove("current");
-            if (current.previousElementSibling) {
-                current.previousElementSibling.classList.add("current");
-            } else {
-                slides[slides.length - 1].classList.add("current");
-            }
-        };
+            const nextSlide = () => {
+                const current = document.querySelector(".current");
+                if (!current) return;
+                current.classList.remove("current");
+                if (current.nextElementSibling) {
+                    current.nextElementSibling.classList.add("current");
+                } else {
+                    slides[0].classList.add("current");
+                }
+            };
 
-        nextButton.addEventListener("click", () => {
-            nextSlide();
+            const prevSlide = () => {
+                const current = document.querySelector(".current");
+                if (!current) return;
+                current.classList.remove("current");
+                if (current.previousElementSibling) {
+                    current.previousElementSibling.classList.add("current");
+                } else {
+                    slides[slides.length - 1].classList.add("current");
+                }
+            };
+
+            nextButton.addEventListener("click", () => {
+                nextSlide();
+                if (auto) {
+                    clearInterval(slideInterval);
+                    slideInterval = setInterval(nextSlide, intervalTime);
+                }
+            });
+            prevButton.addEventListener("click", () => {
+                prevSlide();
+                if (auto) {
+                    clearInterval(slideInterval);
+                    slideInterval = setInterval(nextSlide, intervalTime);
+                }
+            });
+
             if (auto) {
-                clearInterval(slideInterval);
                 slideInterval = setInterval(nextSlide, intervalTime);
             }
-        });
-        prevButton.addEventListener("click", () => {
-            prevSlide();
-            if (auto) {
-                clearInterval(slideInterval);
-                slideInterval = setInterval(nextSlide, intervalTime);
-            }
-        });
-
-        if (auto) {
-            slideInterval = setInterval(nextSlide, intervalTime);
         }
     </script>
     <!-- //banner slider -->

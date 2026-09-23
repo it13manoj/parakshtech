@@ -1,22 +1,25 @@
-import { AboutUs } from "./panels/AboutUs";
-import { ExpertPeople } from "./panels/ExpertPeople";
-import { AboutHero, Hero, ServicesHero, WeManageYourBusiness } from "./panels/Hero";
+import React from "react";
+import { ServicesHero, WeManageYourBusiness } from "./panels/Hero";
+import { TechMarquee } from "./common/TechMarquee";
+import { ValuedServices } from "./panels/ValuedServices";
+import { ServicesArchitectureDiagram } from "./panels/ServicesArchitectureDiagram";
+import { StatsCounter } from "./common/StatsCounter";
 import { OurFeatures } from "./panels/OurFeatures";
 import { SocialMedia } from "./panels/SocialMedia";
-import { ValuedServices } from "./panels/ValuedServices";
-import { WhatWeDo } from "./panels/WhatWeDo";
-import { WhyChooseUs } from "./panels/WhyChooseUs";
 
 export const Services = () => {
   return (
     <>
       <ServicesHero />
+      <TechMarquee />
       <ValuedServices />
-     
-      {/* <ExpertPeople /> */}
+      <ServicesArchitectureDiagram />
+      <StatsCounter />
       <WeManageYourBusiness />
-       <OurFeatures />
-      {/* <WhatWeDo /> */}
+      <OurFeatures />
+      <SocialMedia />
     </>
   );
-}
+};
+
+export default Services;

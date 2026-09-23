@@ -1,20 +1,24 @@
+import React from "react";
 import { Hero } from "./panels/Hero";
-import { OurFeatures } from "./panels/OurFeatures";
-import { SocialMedia } from "./panels/SocialMedia";
+import { TechMarquee } from "./common/TechMarquee";
+import { StatsCounter } from "./common/StatsCounter";
 import { ValuedServices } from "./panels/ValuedServices";
 import { WhyChooseUs } from "./panels/WhyChooseUs";
+import { OurFeatures } from "./panels/OurFeatures";
+import { SocialMedia } from "./panels/SocialMedia";
 
 export const Home = () => {
   return (
     <>
       <Hero />
+      <TechMarquee />
+      <StatsCounter />
       <ValuedServices />
       <WhyChooseUs />
       <OurFeatures />
-      <div className="container"> <hr/>
-        <SocialMedia />
-      </div>
-     
+      <SocialMedia />
     </>
   );
-}
+};
+
+export default Home;
