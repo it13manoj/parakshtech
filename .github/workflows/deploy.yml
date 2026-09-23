@@ -10,6 +10,16 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
+
+      - name: Check Server Host
+        run: |
+          if [ -z "${{ secrets.SERVER_HOST }}" ]; then
+            echo "SERVER_HOST is EMPTY"
+            exit 1
+          else
+            echo "SERVER_HOST is configured"
+          fi
+
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -22,25 +32,12 @@ jobs:
 
             cd /var/www/parakshtech.com
 
-            echo "=== Pull latest code ==="
             git pull origin main
 
-            echo "=== Node ==="
-            node -v
-
-            echo "=== NPM ==="
-            npm -v
-
-            echo "=== Install ==="
             npm ci
 
-            echo "=== Build ==="
             npm run build
 
-            echo "=== Nginx test ==="
             sudo nginx -t
 
-            echo "=== Reload Nginx ==="
             sudo systemctl reload nginx
-
-            echo "=== DEPLOYMENT SUCCESS ==="
