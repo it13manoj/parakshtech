@@ -17,4 +17,20 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            /var/www/parakshtech.com/deploy.sh
+            set -e
+
+            cd /var/www/parakshtech.com
+
+            echo "Pulling latest code..."
+            git pull origin main
+
+            echo "Installing dependencies..."
+            npm ci
+
+            echo "Building application..."
+            npm run build
+
+            echo "Reloading Nginx..."
+            sudo systemctl reload nginx
+
+            echo "Deployment completed successfully!"
