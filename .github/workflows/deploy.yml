@@ -10,6 +10,20 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
+      - name: Check Server Host
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+        run: |
+          echo "Checking SERVER_HOST..."
+
+          if [ -z "$SERVER_HOST" ]; then
+            echo "ERROR: SERVER_HOST is EMPTY"
+            exit 1
+          fi
+
+          echo "SERVER_HOST is configured"
+          echo "Host length: ${#SERVER_HOST}"
+
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -20,10 +34,6 @@ jobs:
           script: |
             set -e
 
-            echo "================================"
-            echo "Starting ParakshTech deployment"
-            echo "================================"
-
             cd /var/www/parakshtech.com
 
             echo "Pulling latest code..."
@@ -32,15 +42,13 @@ jobs:
             echo "Installing dependencies..."
             npm ci
 
-            echo "Creating production build..."
+            echo "Building application..."
             npm run build
 
-            echo "Testing Nginx configuration..."
+            echo "Testing Nginx..."
             sudo nginx -t
 
             echo "Reloading Nginx..."
             sudo systemctl reload nginx
 
-            echo "================================"
-            echo "Deployment completed successfully"
-            echo "================================"
+            echo "Deployment completed successfully!"
