@@ -57,7 +57,7 @@ const Hero = () => {
                 color: "#0f172a",
               }}
             >
-              Architecting <span className="pt-gradient-text">Intelligent</span> Digital Systems That Scale.
+              Architecting 1<span className="pt-gradient-text">Intelligent</span> Digital Systems That Scale.
             </h1>
 
             <p
