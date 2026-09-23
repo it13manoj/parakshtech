@@ -15,22 +15,15 @@ jobs:
         with:
           host: 173.212.235.87
           username: root
-          password: ${{ secrets.SERVER_PASSWORD }}
+          password: 11IT13manoj
           port: 22
           script_stop: true
           script: |
-            set -e
+            echo "SSH connection successful"
+            echo "Server hostname:"
+            hostname
 
+            echo "Testing directory..."
             cd /var/www/parakshtech.com
-
-            git pull origin main
-
-            npm ci
-
-            npm run build
-
-            nginx -t
-
-            systemctl reload nginx
-
-            echo "Deployment completed successfully!"
+            pwd
+            ls -la
