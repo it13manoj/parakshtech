@@ -1,3 +1,4 @@
+```yaml
 name: Deploy ParakshTech
 
 on:
@@ -10,34 +11,42 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-
-      - name: Check Server Host
-        run: |
-          if [ -z "${{ secrets.SERVER_HOST }}" ]; then
-            echo "SERVER_HOST is EMPTY"
-            exit 1
-          else
-            echo "SERVER_HOST is configured"
-          fi
-
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          host: ${{ env.SERVER_HOST }}
+          username: ${{ env.SERVER_USER }}
+          key: ${{ env.SERVER_SSH_KEY }}
           script_stop: true
           script: |
-            set -eux
+            set -e
+
+            echo "================================"
+            echo "Starting ParakshTech deployment"
+            echo "================================"
 
             cd /var/www/parakshtech.com
 
+            echo "Pulling latest code..."
             git pull origin main
 
+            echo "Installing dependencies..."
             npm ci
 
+            echo "Creating production build..."
             npm run build
 
+            echo "Testing Nginx configuration..."
             sudo nginx -t
 
+            echo "Reloading Nginx..."
             sudo systemctl reload nginx
+
+            echo "================================"
+            echo "Deployment completed successfully"
+            echo "================================"
+```
