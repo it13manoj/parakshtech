@@ -31,10 +31,10 @@ export const StatsCounter = () => {
             const ease = 1 - Math.pow(1 - progress, 3);
 
             setCounts({
-              projects: Math.floor(ease * 2),
+              projects: Math.floor(ease * 5),
               satisfaction: +(ease * 99.8).toFixed(1),
               experience: Math.floor(ease * 10),
-              engineers: Math.floor(ease * 50),
+              engineers: Math.floor(ease * 10),
             });
 
             if (progress < 1) {
