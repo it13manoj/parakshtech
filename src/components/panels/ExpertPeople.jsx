@@ -78,7 +78,7 @@ export const ExpertPeople = () => {
         <div className="row g-4 justify-content-center">
           {teamList.map((rows, idx) => (
             <>
-            {rows?.title !="Nikki Kumari" && (
+            {rows?.title !== "Nikki Kumari" && (
             <div key={idx} className="col-lg-3 col-md-6 col-sm-10">
               <SpotlightCard className="p-3 text-center h-100" maxTilt={8}>
                 <div className="position-relative mb-3 overflow-hidden rounded-3">

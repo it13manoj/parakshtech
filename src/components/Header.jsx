@@ -9,7 +9,7 @@ export const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY >= 30);
+      setIsScrolled(window.scrollY >= 20);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -20,8 +20,27 @@ export const Header = () => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
-  const isActive = (path) =>
-    location.pathname === path ? "pt-nav-link active" : "pt-nav-link";
+  const isActive = (path) => {
+    if (path === "/") {
+      return location.pathname === "/" && !location.hash
+        ? "pt-nav-link active"
+        : "pt-nav-link";
+    }
+    return location.pathname.startsWith(path)
+      ? "pt-nav-link active"
+      : "pt-nav-link";
+  };
+
+  const handlePortfolioClick = (e) => {
+    setIsMenuOpen(false);
+    if (location.pathname === "/") {
+      e.preventDefault();
+      const el = document.getElementById("portfolio");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
 
   return (
     <header
@@ -29,20 +48,22 @@ export const Header = () => {
       className={`fixed-top pt-header-glass ${isScrolled ? "nav-fixed" : ""}`}
     >
       <div className="container">
-        <nav className="navbar navbar-expand-lg py-2">
-          {/* Brand Logo: Logo Image functions as the 'P', followed by ARAKSHTECH */}
+        <nav className="navbar navbar-expand-lg">
+          {/* Brand Logo: Logo Image functions as stylized 'P', followed by ARAKSHTECH */}
           <Link className="navbar-brand pt-brand-logo" to="/">
             <img
               src={logo}
               alt="ParakshTech Logo"
               style={{
-                width: "50px",
-                height: "auto",
-                marginRight: "3px",
+                width: "44px",
+                height: "44px",
+                objectFit: "contain",
+                marginRight: "4px",
                 filter: "drop-shadow(0 2px 8px rgba(245, 32, 41, 0.25))",
+                flexShrink: 0,
               }}
             />
-            <span style={{ fontWeight: "800", letterSpacing: "-0.5px" }}>
+            <span style={{ fontWeight: "800", letterSpacing: "-0.5px", whiteSpace: "nowrap" }}>
               <span style={{ color: "var(--pt-primary)" }}>ARAKSH</span>TECH
             </span>
           </Link>
@@ -55,13 +76,8 @@ export const Header = () => {
             aria-controls="navbarScroll"
             aria-expanded={isMenuOpen}
             aria-label="Toggle navigation"
-            style={{
-              border: "1px solid rgba(0,0,0,0.1)",
-              borderRadius: "10px",
-              padding: "6px 12px",
-            }}
           >
-            <i className={`fas ${isMenuOpen ? "fa-times" : "fa-bars"}`} style={{ color: "var(--pt-primary)" }}></i>
+            <i className={`fas ${isMenuOpen ? "fa-times" : "fa-bars"}`} style={{ color: "var(--pt-primary)", fontSize: "1.1rem" }}></i>
           </button>
 
           {/* Navigation Links */}
@@ -69,45 +85,49 @@ export const Header = () => {
             className={`collapse navbar-collapse ${isMenuOpen ? "show" : ""}`}
             id="navbarScroll"
           >
-            <ul className="navbar-nav ms-auto my-2 my-lg-0 navbar-nav-scroll align-items-lg-center">
-              <li className="nav-item mx-1">
-                <Link className={isActive("/")} to="/">
+            <ul className="navbar-nav ms-auto align-items-lg-center">
+              <li className="nav-item">
+                <Link className={isActive("/")} to="/" onClick={() => setIsMenuOpen(false)}>
                   Home
                 </Link>
               </li>
-              <li className="nav-item mx-1">
-                <Link className={isActive("/about")} to="/about">
+              <li className="nav-item">
+                <Link className={isActive("/about")} to="/about" onClick={() => setIsMenuOpen(false)}>
                   About
                 </Link>
               </li>
-              <li className="nav-item mx-1">
-                <Link className={isActive("/services")} to="/services">
+              <li className="nav-item">
+                <Link className={isActive("/services")} to="/services" onClick={() => setIsMenuOpen(false)}>
                   Services
                 </Link>
               </li>
-              <li className="nav-item mx-1">
-                <a
+              <li className="nav-item">
+                <Link
                   className="pt-nav-link"
-                  href="/#portfolio"
-                  onClick={() => setIsMenuOpen(false)}
+                  to="/#portfolio"
+                  onClick={handlePortfolioClick}
                 >
                   Portfolio
-                </a>
+                </Link>
               </li>
-              <li className="nav-item mx-1">
-                <Link className={isActive("/careers")} to="/careers">
+              <li className="nav-item">
+                <Link className={isActive("/careers")} to="/careers" onClick={() => setIsMenuOpen(false)}>
                   Careers
                 </Link>
               </li>
-              <li className="nav-item mx-1">
-                <Link className={isActive("/contact")} to="/contact">
+              <li className="nav-item">
+                <Link className={isActive("/contact")} to="/contact" onClick={() => setIsMenuOpen(false)}>
                   Contact
                 </Link>
               </li>
-              <li className="nav-item ms-lg-3 mt-3 mt-lg-0">
-                <Link to="/contact" className="pt-btn-primary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>
+              <li className="nav-item">
+                <Link
+                  to="/contact"
+                  className="pt-btn-primary pt-header-cta-btn"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   <span>Get in Touch</span>
-                  <i className="fas fa-arrow-right" style={{ fontSize: "0.8rem" }}></i>
+                  <i className="fas fa-arrow-right" style={{ fontSize: "0.75rem" }}></i>
                 </Link>
               </li>
             </ul>
