@@ -86,6 +86,15 @@ export const Header = () => {
                 </Link>
               </li>
               <li className="nav-item mx-1">
+                <a
+                  className="pt-nav-link"
+                  href="/#portfolio"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Portfolio
+                </a>
+              </li>
+              <li className="nav-item mx-1">
                 <Link className={isActive("/careers")} to="/careers">
                   Careers
                 </Link>
