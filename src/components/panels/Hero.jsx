@@ -328,7 +328,7 @@ const AboutHero = () => {
       <div className="container position-relative" style={{ zIndex: 3 }}>
         <div className="pt-badge-live mb-2">
           <span className="pt-live-dot"></span>
-          <span>Pioneering Digital Innovation Since 2016</span>
+          <span>Pioneering Digital Innovation Since 2025</span>
         </div>
         <h1 className="fw-bold mb-2 pt-gradient-text-light display-5">
           {aboutHero?.title || "About ParakshTech"}
