@@ -91,7 +91,7 @@ const Hero = () => {
             >
               <div className="d-flex align-items-center gap-2">
                 <i className="fas fa-check-circle" style={{ color: "var(--pt-primary)", fontSize: "1.1rem" }}></i>
-                <span style={{ fontSize: "0.92rem", fontWeight: "600", color: "#1e293b" }}>500+ Projects Delivered</span>
+                <span style={{ fontSize: "0.92rem", fontWeight: "600", color: "#1e293b" }}>5+ Projects Delivered</span>
               </div>
               <div className="d-flex align-items-center gap-2">
                 <i className="fas fa-shield-alt" style={{ color: "var(--pt-secondary)", fontSize: "1.1rem" }}></i>
