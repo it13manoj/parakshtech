@@ -22,6 +22,7 @@ import JobsManager from "./components/admin/JobsManager";
 import TeamManager from "./components/admin/TeamManager";
 import ContactsManager from "./components/admin/ContactsManager";
 import SiteContentManager from "./components/admin/SiteContentManager";
+import AdminSettings from "./components/admin/AdminSettings";
 
 import "./assets/css/modern-creative.css";
 import "./App.css";
@@ -91,6 +92,7 @@ function App() {
           <Route path="team" element={<TeamManager />} />
           <Route path="contacts" element={<ContactsManager />} />
           <Route path="content" element={<SiteContentManager />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>
     </BrowserRouter>

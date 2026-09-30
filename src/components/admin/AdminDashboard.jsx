@@ -378,6 +378,45 @@ export const AdminDashboard = () => {
                 </div>
                 <i className="fas fa-chevron-right" style={{ color: "#64748b" }} />
               </Link>
+
+              <Link
+                to="/admin/settings"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "14px 18px",
+                  background: "rgba(255, 255, 255, 0.03)",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(255, 255, 255, 0.06)",
+                  color: "#ffffff",
+                  textDecoration: "none",
+                }}
+              >
+                <div className="d-flex align-items-center gap-3">
+                  <div
+                    style={{
+                      width: "36px",
+                      height: "36px",
+                      borderRadius: "8px",
+                      background: "rgba(236, 72, 153, 0.15)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#ec4899",
+                    }}
+                  >
+                    <i className="fas fa-key" />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: "600", fontSize: "0.92rem" }}>Update Admin Password</div>
+                    <div style={{ fontSize: "0.78rem", color: "#94a3b8" }}>
+                      Change login password, update admin email, and verify database schema
+                    </div>
+                  </div>
+                </div>
+                <i className="fas fa-chevron-right" style={{ color: "#64748b" }} />
+              </Link>
             </div>
           </div>
         </div>

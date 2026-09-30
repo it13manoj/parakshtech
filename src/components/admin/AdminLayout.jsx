@@ -53,6 +53,11 @@ export const AdminLayout = () => {
       icon: "fas fa-sliders-h",
       label: "Site Content & Hero",
     },
+    {
+      to: "/admin/settings",
+      icon: "fas fa-shield-alt",
+      label: "Account & Password",
+    },
   ];
 
   return (
@@ -331,11 +336,25 @@ export const AdminLayout = () => {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Link
+              to="/admin/settings"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                textDecoration: "none",
+                padding: "6px 12px",
+                borderRadius: "10px",
+                background: "rgba(255, 255, 255, 0.04)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                transition: "background 0.2s",
+              }}
+              title="Account & Password Settings"
+            >
               <div
                 style={{
-                  width: "36px",
-                  height: "36px",
+                  width: "34px",
+                  height: "34px",
                   borderRadius: "50%",
                   background: "linear-gradient(135deg, var(--pt-primary) 0%, #6366f1 100%)",
                   display: "flex",
@@ -348,13 +367,13 @@ export const AdminLayout = () => {
               >
                 {user.name ? user.name.charAt(0).toUpperCase() : "A"}
               </div>
-              <div className="d-none d-sm-block">
-                <div style={{ fontSize: "0.86rem", fontWeight: "600", color: "#ffffff", lineHeight: 1.2 }}>
+              <div className="d-none d-sm-block text-start">
+                <div style={{ fontSize: "0.85rem", fontWeight: "600", color: "#ffffff", lineHeight: 1.2 }}>
                   {user.name || "Administrator"}
                 </div>
-                <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>{user.email || "admin"}</div>
+                <div style={{ fontSize: "0.7rem", color: "#94a3b8" }}>Settings & Security</div>
               </div>
-            </div>
+            </Link>
           </div>
         </header>
 
