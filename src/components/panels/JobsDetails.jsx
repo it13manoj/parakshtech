@@ -48,13 +48,31 @@ function JobsDetails() {
     let isMounted = true;
     if (id) {
       axios
-        .get(`${API.BASE_URL}jobs/details/${id}`)
+        .get(`${API.BASE_URL}jobs/${id}`)
         .then((res) => {
           if (isMounted && res?.data?.data) {
             setTemplate(res.data.data);
+          } else {
+            axios
+              .get(`${API.BASE_URL}jobs/details/${id}`)
+              .then((legacyRes) => {
+                if (isMounted && legacyRes?.data?.data) {
+                  setTemplate(legacyRes.data.data);
+                }
+              })
+              .catch(() => {});
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          axios
+            .get(`${API.BASE_URL}jobs/details/${id}`)
+            .then((legacyRes) => {
+              if (isMounted && legacyRes?.data?.data) {
+                setTemplate(legacyRes.data.data);
+              }
+            })
+            .catch(() => {});
+        });
     }
 
     return () => {

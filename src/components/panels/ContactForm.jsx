@@ -53,7 +53,12 @@ export const ContactForm = () => {
 
     try {
       setLoading(true);
-      const res = await axios.post(`${API.BASE_URL}contact-us`, form);
+      let res;
+      try {
+        res = await axios.post(`${API.BASE_URL}contact`, form);
+      } catch (err) {
+        res = await axios.post(`${API.BASE_URL}contact-us`, form);
+      }
 
       if (res?.data?.success) {
         setSuccessMsg("Your inquiry was submitted successfully. Our team will contact you within 24 hours.");

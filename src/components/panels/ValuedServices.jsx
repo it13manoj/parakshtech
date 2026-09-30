@@ -70,16 +70,38 @@ export const ValuedServices = () => {
   useEffect(() => {
     let isMounted = true;
     axios
-      .get(`${API.BASE_URL}home-hero/ValuedServices`)
-      .then((response) => {
-        if (isMounted && response?.data?.data?.length) {
-          setweb(response.data.data[0]);
-          if (response.data.data.length > 1) {
-            setTemplate(response.data.data.slice(1));
-          }
+      .get(`${API.BASE_URL}services`)
+      .then((res) => {
+        if (isMounted && res?.data?.data && res.data.data.length > 0) {
+          setTemplate(res.data.data);
+        } else {
+          // Fallback to legacy endpoint
+          axios
+            .get(`${API.BASE_URL}home-hero/ValuedServices`)
+            .then((legacyRes) => {
+              if (isMounted && legacyRes?.data?.data?.length) {
+                setweb(legacyRes.data.data[0]);
+                if (legacyRes.data.data.length > 1) {
+                  setTemplate(legacyRes.data.data.slice(1));
+                }
+              }
+            })
+            .catch(() => {});
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        axios
+          .get(`${API.BASE_URL}home-hero/ValuedServices`)
+          .then((legacyRes) => {
+            if (isMounted && legacyRes?.data?.data?.length) {
+              setweb(legacyRes.data.data[0]);
+              if (legacyRes.data.data.length > 1) {
+                setTemplate(legacyRes.data.data.slice(1));
+              }
+            }
+          })
+          .catch(() => {});
+      });
 
     return () => {
       isMounted = false;

@@ -41,16 +41,46 @@ export const ExpertPeople = () => {
   useEffect(() => {
     let isMounted = true;
     axios
-      .get(`${API.BASE_URL}home-hero/ExpertPeople`)
-      .then((response) => {
-        if (isMounted && response?.data?.data?.length) {
-          setweb(response.data.data[0]);
-          if (response.data.data.length > 1) {
-            setTemplate(response.data.data.slice(1));
-          }
+      .get(`${API.BASE_URL}team`)
+      .then((res) => {
+        if (isMounted && res?.data?.data && res.data.data.length > 0) {
+          // Normalize Team model fields to match UI (name -> title, designation -> heading)
+          const formatted = res.data.data.map((m) => ({
+            id: m.id,
+            title: m.name,
+            heading: m.designation,
+            images: m.image,
+            bio: m.bio,
+            social: m.social,
+          }));
+          setTemplate(formatted);
+        } else {
+          axios
+            .get(`${API.BASE_URL}home-hero/ExpertPeople`)
+            .then((legacyRes) => {
+              if (isMounted && legacyRes?.data?.data?.length) {
+                setweb(legacyRes.data.data[0]);
+                if (legacyRes.data.data.length > 1) {
+                  setTemplate(legacyRes.data.data.slice(1));
+                }
+              }
+            })
+            .catch(() => {});
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        axios
+          .get(`${API.BASE_URL}home-hero/ExpertPeople`)
+          .then((legacyRes) => {
+            if (isMounted && legacyRes?.data?.data?.length) {
+              setweb(legacyRes.data.data[0]);
+              if (legacyRes.data.data.length > 1) {
+                setTemplate(legacyRes.data.data.slice(1));
+              }
+            }
+          })
+          .catch(() => {});
+      });
 
     return () => {
       isMounted = false;

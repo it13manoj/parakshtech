@@ -17,18 +17,36 @@ export const ServicesDetails = () => {
   useEffect(() => {
     let isMounted = true;
     axios
-      .get(`${API.BASE_URL}home-hero/${serviceSlug}`)
+      .get(`${API.BASE_URL}services/${data}`)
       .then((response) => {
-        if (isMounted && response?.data?.data?.[0]) {
-          setTemplate(response.data.data[0]);
+        if (isMounted && response?.data?.data) {
+          setTemplate(response.data.data);
+        } else {
+          axios
+            .get(`${API.BASE_URL}home-hero/${serviceSlug}`)
+            .then((res) => {
+              if (isMounted && res?.data?.data?.[0]) {
+                setTemplate(res.data.data[0]);
+              }
+            })
+            .catch(() => {});
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        axios
+          .get(`${API.BASE_URL}home-hero/${serviceSlug}`)
+          .then((res) => {
+            if (isMounted && res?.data?.data?.[0]) {
+              setTemplate(res.data.data[0]);
+            }
+          })
+          .catch(() => {});
+      });
 
     return () => {
       isMounted = false;
     };
-  }, [serviceSlug]);
+  }, [data, serviceSlug]);
 
   const defaultDetails = {
     heading: `Enterprise ${serviceSlug.toUpperCase()} Solutions`,

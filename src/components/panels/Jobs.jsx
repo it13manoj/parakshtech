@@ -54,13 +54,31 @@ export const Jobs = () => {
   useEffect(() => {
     let isMounted = true;
     axios
-      .get(`${API.BASE_URL}home-hero/Jobs`)
+      .get(`${API.BASE_URL}jobs`)
       .then((response) => {
-        if (isMounted && response?.data?.data?.length) {
+        if (isMounted && response?.data?.data && response.data.data.length > 0) {
           setJobs(response.data.data);
+        } else {
+          axios
+            .get(`${API.BASE_URL}home-hero/Jobs`)
+            .then((legacyRes) => {
+              if (isMounted && legacyRes?.data?.data?.length) {
+                setJobs(legacyRes.data.data);
+              }
+            })
+            .catch(() => {});
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        axios
+          .get(`${API.BASE_URL}home-hero/Jobs`)
+          .then((legacyRes) => {
+            if (isMounted && legacyRes?.data?.data?.length) {
+              setJobs(legacyRes.data.data);
+            }
+          })
+          .catch(() => {});
+      });
 
     return () => {
       isMounted = false;

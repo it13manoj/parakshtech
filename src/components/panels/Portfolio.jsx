@@ -348,16 +348,38 @@ export const Portfolio = () => {
   useEffect(() => {
     let isMounted = true;
     axios
-      .get(`${API.BASE_URL}home-hero/Portfolio`)
+      .get(`${API.BASE_URL}portfolio`)
       .then((res) => {
-        if (isMounted && res?.data?.data?.length) {
-          setPortfolioHeader(res.data.data[0]);
-          if (res.data.data.length > 1) {
-            setApiProjects(res.data.data.slice(1));
-          }
+        if (isMounted && res?.data?.data && res.data.data.length > 0) {
+          setApiProjects(res.data.data);
+        } else {
+          // Fallback to legacy endpoint if empty
+          axios
+            .get(`${API.BASE_URL}home-hero/Portfolio`)
+            .then((legacyRes) => {
+              if (isMounted && legacyRes?.data?.data?.length) {
+                setPortfolioHeader(legacyRes.data.data[0]);
+                if (legacyRes.data.data.length > 1) {
+                  setApiProjects(legacyRes.data.data.slice(1));
+                }
+              }
+            })
+            .catch(() => {});
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        axios
+          .get(`${API.BASE_URL}home-hero/Portfolio`)
+          .then((legacyRes) => {
+            if (isMounted && legacyRes?.data?.data?.length) {
+              setPortfolioHeader(legacyRes.data.data[0]);
+              if (legacyRes.data.data.length > 1) {
+                setApiProjects(legacyRes.data.data.slice(1));
+              }
+            }
+          })
+          .catch(() => {});
+      });
 
     return () => {
       isMounted = false;

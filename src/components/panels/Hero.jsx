@@ -15,13 +15,29 @@ const Hero = () => {
   useEffect(() => {
     let isMounted = true;
     axios
-      .get(`${API.BASE_URL}home-hero/Hero`)
+      .get(`${API.BASE_URL}content/hero`)
       .then((res) => {
-        if (isMounted && res?.data?.data?.length) {
-          setHeroBanner(res.data.data[0]);
+        if (isMounted && res?.data?.data) {
+          const d = res.data.data;
+          const meta = typeof d.metadata === "string" ? JSON.parse(d.metadata || "{}") : d.metadata || {};
+          setHeroBanner({
+            title: d.title,
+            heading: d.heading,
+            badge: d.sub_heading,
+            ...meta,
+          });
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        axios
+          .get(`${API.BASE_URL}home-hero/Hero`)
+          .then((res) => {
+            if (isMounted && res?.data?.data?.length) {
+              setHeroBanner(res.data.data[0]);
+            }
+          })
+          .catch(() => {});
+      });
 
     return () => {
       isMounted = false;
@@ -46,7 +62,7 @@ const Hero = () => {
           <div className="col-lg-7 text-start">
             <div className="pt-badge-live">
               <span className="pt-live-dot"></span>
-              <span>Next-Gen IT & Digital Engineering Solutions</span>
+              <span>{heroBanner?.badge || heroBanner?.sub_heading || "Next-Gen IT & Digital Engineering Solutions"}</span>
             </div>
 
             <h1
@@ -57,7 +73,13 @@ const Hero = () => {
                 color: "#0f172a",
               }}
             >
-              Architecting <span className="pt-gradient-text">Intelligent</span> Digital Systems That Scale.
+              {heroBanner?.title ? (
+                heroBanner.title
+              ) : (
+                <>
+                  Architecting <span className="pt-gradient-text">Intelligent</span> Digital Systems That Scale.
+                </>
+              )}
             </h1>
 
             <p
@@ -74,13 +96,13 @@ const Hero = () => {
             </p>
 
             <div className="d-flex flex-wrap gap-3 align-items-center mb-5">
-              <Link to="/services" className="pt-btn-primary">
-                <span>Explore Solutions</span>
+              <Link to={heroBanner?.ctaPrimaryLink || "/services"} className="pt-btn-primary">
+                <span>{heroBanner?.ctaPrimaryText || "Explore Solutions"}</span>
                 <i className="fas fa-arrow-right"></i>
               </Link>
-              <Link to="/contact" className="pt-btn-outline">
+              <Link to={heroBanner?.ctaSecondaryLink || "/contact"} className="pt-btn-outline">
                 <i className="fas fa-calendar-check" style={{ color: "var(--pt-primary)" }}></i>
-                <span>Schedule a Call</span>
+                <span>{heroBanner?.ctaSecondaryText || "Schedule a Call"}</span>
               </Link>
             </div>
 
@@ -91,15 +113,21 @@ const Hero = () => {
             >
               <div className="d-flex align-items-center gap-2">
                 <i className="fas fa-check-circle" style={{ color: "var(--pt-primary)", fontSize: "1.1rem" }}></i>
-                <span style={{ fontSize: "0.92rem", fontWeight: "600", color: "#1e293b" }}>5+ Projects Delivered</span>
+                <span style={{ fontSize: "0.92rem", fontWeight: "600", color: "#1e293b" }}>
+                  {heroBanner?.metric1 || "5+ Projects Delivered"}
+                </span>
               </div>
               <div className="d-flex align-items-center gap-2">
                 <i className="fas fa-shield-alt" style={{ color: "var(--pt-secondary)", fontSize: "1.1rem" }}></i>
-                <span style={{ fontSize: "0.92rem", fontWeight: "600", color: "#1e293b" }}>99.9% Uptime Guarantee</span>
+                <span style={{ fontSize: "0.92rem", fontWeight: "600", color: "#1e293b" }}>
+                  {heroBanner?.metric2 || "99.9% Uptime Guarantee"}
+                </span>
               </div>
               <div className="d-flex align-items-center gap-2">
                 <i className="fas fa-headset" style={{ color: "#10b981", fontSize: "1.1rem" }}></i>
-                <span style={{ fontSize: "0.92rem", fontWeight: "600", color: "#1e293b" }}>24/7 Expert Support</span>
+                <span style={{ fontSize: "0.92rem", fontWeight: "600", color: "#1e293b" }}>
+                  {heroBanner?.metric3 || "24/7 Expert Support"}
+                </span>
               </div>
             </div>
           </div>

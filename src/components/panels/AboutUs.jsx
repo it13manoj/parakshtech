@@ -17,13 +17,22 @@ export const AboutUs = () => {
   useEffect(() => {
     let isMounted = true;
     axios
-      .get(`${API.BASE_URL}home-hero/AboutUs`)
+      .get(`${API.BASE_URL}content/about`)
       .then((res) => {
-        if (isMounted && res?.data?.data?.[0]) {
-          setTemplates(res.data.data[0]);
+        if (isMounted && res?.data?.data) {
+          setTemplates(res.data.data);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        axios
+          .get(`${API.BASE_URL}home-hero/AboutUs`)
+          .then((res) => {
+            if (isMounted && res?.data?.data?.[0]) {
+              setTemplates(res.data.data[0]);
+            }
+          })
+          .catch(() => {});
+      });
 
     return () => {
       isMounted = false;

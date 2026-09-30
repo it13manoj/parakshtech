@@ -257,6 +257,10 @@ export const Footer = () => {
               <Link to="/about" style={{ color: "#64748b", textDecoration: "none" }}>
                 Terms of Service
               </Link>
+              <span style={{ color: "#334155" }}>•</span>
+              <Link to="/admin/login" style={{ color: "#64748b", textDecoration: "none" }}>
+                <i className="fas fa-lock me-1"></i> Admin Portal
+              </Link>
             </div>
           </div>
         </div>
