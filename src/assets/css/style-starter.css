@@ -45,7 +45,7 @@ Author URL: http://w3layouts.com
 
 @media (prefers-reduced-motion: no-preference) {
   :root {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
   }
 }
 
@@ -11828,7 +11828,7 @@ fieldset:disabled .btn {
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body,

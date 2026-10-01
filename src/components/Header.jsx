@@ -45,7 +45,11 @@ export const Header = () => {
       e.preventDefault();
       const el = document.getElementById("portfolio");
       if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
+        if (window.lenis) {
+          window.lenis.scrollTo(el, { offset: -70 });
+        } else {
+          el.scrollIntoView({ behavior: "smooth" });
+        }
       }
     }
   };

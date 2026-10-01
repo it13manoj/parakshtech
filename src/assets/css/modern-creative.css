@@ -40,17 +40,19 @@
 }
 
 /* --------------------------------------------------------------------------
-   Global Resets & Mobile-Optimized Frictionless Touch Scroll
+   Global Resets & Lenis Inertial Smooth Scrolling Integration
    -------------------------------------------------------------------------- */
-@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
-  html {
-    scroll-behavior: smooth;
-  }
+html {
+  scroll-behavior: auto !important;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
 }
 
 html, body {
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
 }
 
 body {

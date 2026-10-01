@@ -10,6 +10,7 @@ import { ContactUs } from "./components/Contact";
 import { ServicesDetails } from "./components/ServicesDetails";
 import JobsDetails from "./components/panels/JobsDetails";
 import CursorGlow from "./components/common/CursorGlow";
+import SmoothScroll from "./components/common/SmoothScroll";
 
 // Admin Management Components
 import ProtectedRoute from "./components/admin/ProtectedRoute";
@@ -46,16 +47,16 @@ function ScrollToTopOnRoute() {
   return null;
 }
 
-// Public layout with Header & Footer
+// Public layout with Header, Footer, and Lenis Smooth Scroll
 function PublicLayout() {
   return (
-    <>
+    <SmoothScroll>
       <Header />
       <main>
         <Outlet />
       </main>
       <Footer />
-    </>
+    </SmoothScroll>
   );
 }
 
