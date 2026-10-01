@@ -28,7 +28,7 @@ import AdminSettings from "./components/admin/AdminSettings";
 import "./assets/css/modern-creative.css";
 import "./App.css";
 
-// Helper component that scrolls to top on route change and guarantees free scrolling
+// Helper component that
 function ScrollToTopOnRoute() {
   const { pathname } = useLocation();
 
