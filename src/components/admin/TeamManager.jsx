@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import axios from "axios";
 import API from "../../Config/API";
 
@@ -42,43 +42,117 @@ export const TeamManager = () => {
     [token]
   );
 
+  // Helper for safe social parsing
+  const getCleanSocial = useCallback((socialRaw) => {
+    if (!socialRaw) return { linkedin: "", github: "", twitter: "" };
+    let parsed = socialRaw;
+    if (typeof socialRaw === "string") {
+      try {
+        parsed = JSON.parse(socialRaw);
+      } catch {
+        return { linkedin: "", github: "", twitter: "" };
+      }
+    }
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+      return { linkedin: "", github: "", twitter: "" };
+    }
+    return {
+      linkedin: typeof parsed.linkedin === "string" ? parsed.linkedin.trim() : "",
+      github: typeof parsed.github === "string" ? parsed.github.trim() : "",
+      twitter: typeof parsed.twitter === "string" ? parsed.twitter.trim() : "",
+    };
+  }, []);
+
+  // Helper for image URL
+  const getImageDisplay = useCallback((img) => {
+    if (!img || typeof img !== "string") return "";
+    const clean = img.trim();
+    if (!clean) return "";
+    if (
+      clean.startsWith("http://") ||
+      clean.startsWith("https://") ||
+      clean.startsWith("data:") ||
+      clean.startsWith("blob:")
+    ) {
+      return clean;
+    }
+    if (clean.startsWith("/")) {
+      return clean;
+    }
+    return `${API.BASE_URL_IMAGES}${clean}`;
+  }, []);
+
   // Load team members
-  const loadTeam = async () => {
+  const loadTeam = useCallback(async () => {
     try {
       setLoading(true);
+      setErrorMsg("");
       const res = await axios.get(`${API.BASE_URL}admin/team`, authHeaders);
-      if (res.data?.success) {
-        setMembers(res.data.data || []);
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        setMembers(res.data.data);
+      } else {
+        const fallback = await axios.get(`${API.BASE_URL}team`);
+        if (fallback.data?.success && Array.isArray(fallback.data.data)) {
+          setMembers(fallback.data.data);
+        } else {
+          setMembers([]);
+        }
       }
     } catch {
       try {
         const fallback = await axios.get(`${API.BASE_URL}team`);
-        if (fallback.data?.success) {
-          setMembers(fallback.data.data || []);
+        if (fallback.data?.success && Array.isArray(fallback.data.data)) {
+          setMembers(fallback.data.data);
+        } else {
+          setMembers([]);
         }
-      } catch (err) {
-        setErrorMsg("Failed to load team members from database");
+      } catch {
+        setErrorMsg("Failed to load team members from database. Please check connection.");
+        setMembers([]);
       }
     } finally {
       setLoading(false);
     }
-  };
+  }, [authHeaders]);
 
   useEffect(() => {
     loadTeam();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadTeam]);
+
+  // Safe members list
+  const memberList = useMemo(() => {
+    return Array.isArray(members) ? members.filter((m) => m && typeof m === "object") : [];
+  }, [members]);
 
   // Filtered members
-  const filteredMembers = members.filter((m) => {
-    if (!search.trim()) return true;
+  const filteredMembers = useMemo(() => {
+    if (!search.trim()) return memberList;
     const q = search.toLowerCase();
-    return (
-      m.name?.toLowerCase().includes(q) ||
-      m.designation?.toLowerCase().includes(q) ||
-      m.bio?.toLowerCase().includes(q)
-    );
-  });
+    return memberList.filter((m) => {
+      const name = String(m?.name || "").toLowerCase();
+      const designation = String(m?.designation || "").toLowerCase();
+      const bio = String(m?.bio || "").toLowerCase();
+      return name.includes(q) || designation.includes(q) || bio.includes(q);
+    });
+  }, [memberList, search]);
+
+  // Metrics
+  const totalCount = memberList.length;
+  const activeCount = memberList.filter(
+    (m) => m.isActive === true || m.isActive === 1 || m.isActive === "1"
+  ).length;
+  const leadershipCount =
+    memberList.filter((m) => {
+      const d = String(m?.designation || "").toLowerCase();
+      return (
+        d.includes("ceo") ||
+        d.includes("founder") ||
+        d.includes("manager") ||
+        d.includes("lead") ||
+        d.includes("director") ||
+        d.includes("head")
+      );
+    }).length || totalCount;
 
   // Open Create Modal
   const handleOpenCreate = () => {
@@ -93,26 +167,21 @@ export const TeamManager = () => {
 
   // Open Edit Modal
   const handleOpenEdit = (m) => {
+    if (!m) return;
     setEditId(m.id);
-
-    let parsedSocial = { linkedin: "", github: "", twitter: "" };
-    try {
-      if (typeof m.social === "object" && m.social !== null) {
-        parsedSocial = { ...parsedSocial, ...m.social };
-      } else if (typeof m.social === "string") {
-        parsedSocial = { ...parsedSocial, ...JSON.parse(m.social) };
-      }
-    } catch {
-      // ignore
-    }
+    const social = getCleanSocial(m.social);
 
     setForm({
-      name: m.name || "",
-      designation: m.designation || "",
-      bio: m.bio || "",
-      order: m.order || 0,
-      social: parsedSocial,
-      existingImage: m.image || "",
+      name: String(m.name || ""),
+      designation: String(m.designation || ""),
+      bio: String(m.bio || ""),
+      order: Number(m.order) || 0,
+      social: {
+        linkedin: social.linkedin || "",
+        github: social.github || "",
+        twitter: social.twitter || "",
+      },
+      existingImage: typeof m.image === "string" ? m.image : "",
       image: "",
     });
 
@@ -125,7 +194,7 @@ export const TeamManager = () => {
 
   // Image select
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
@@ -146,11 +215,11 @@ export const TeamManager = () => {
     try {
       setSubmitting(true);
       const formData = new FormData();
-      formData.append("name", form.name);
-      formData.append("designation", form.designation);
-      formData.append("bio", form.bio);
-      formData.append("order", form.order);
-      formData.append("social", JSON.stringify(form.social));
+      formData.append("name", form.name.trim());
+      formData.append("designation", form.designation.trim());
+      formData.append("bio", form.bio.trim());
+      formData.append("order", String(form.order || 0));
+      formData.append("social", JSON.stringify(form.social || {}));
 
       if (selectedFile) {
         formData.append("image", selectedFile);
@@ -174,7 +243,7 @@ export const TeamManager = () => {
       }
 
       await loadTeam();
-      setTimeout(() => setShowModal(false), 900);
+      setTimeout(() => setShowModal(false), 800);
     } catch (err) {
       setErrorMsg(err.response?.data?.message || "Failed to save team member");
     } finally {
@@ -187,7 +256,11 @@ export const TeamManager = () => {
     try {
       await axios.patch(`${API.BASE_URL}admin/team/${id}/toggle`, {}, authHeaders);
       setMembers((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, isActive: !m.isActive } : m))
+        (Array.isArray(prev) ? prev : []).map((m) =>
+          m.id === id
+            ? { ...m, isActive: !(m.isActive === true || m.isActive === 1 || m.isActive === "1") }
+            : m
+        )
       );
     } catch {
       setErrorMsg("Failed to toggle status");
@@ -199,20 +272,13 @@ export const TeamManager = () => {
     if (!deleteConfirmId) return;
     try {
       await axios.delete(`${API.BASE_URL}admin/team/${deleteConfirmId}`, authHeaders);
-      setMembers((prev) => prev.filter((m) => m.id !== deleteConfirmId));
+      setMembers((prev) =>
+        (Array.isArray(prev) ? prev : []).filter((m) => m.id !== deleteConfirmId)
+      );
       setDeleteConfirmId(null);
     } catch {
       setErrorMsg("Failed to remove team member");
     }
-  };
-
-  // Helper for image URL
-  const getImageDisplay = (img) => {
-    if (!img) return "";
-    if (img.startsWith("http://") || img.startsWith("https://") || img.startsWith("/")) {
-      return img;
-    }
-    return `${API.BASE_URL_IMAGES}${img}`;
   };
 
   return (
@@ -282,10 +348,10 @@ export const TeamManager = () => {
             </div>
             <div>
               <div style={{ color: "#94a3b8", fontSize: "0.82rem", fontWeight: "500" }}>
-                Total Members
+                Total Profiles
               </div>
               <div style={{ color: "#ffffff", fontSize: "1.45rem", fontWeight: "800" }}>
-                {members.length}
+                {totalCount}
               </div>
             </div>
           </div>
@@ -323,7 +389,7 @@ export const TeamManager = () => {
                 Active on Website
               </div>
               <div style={{ color: "#ffffff", fontSize: "1.45rem", fontWeight: "800" }}>
-                {members.filter((m) => m.isActive !== false).length}
+                {activeCount}
               </div>
             </div>
           </div>
@@ -361,7 +427,7 @@ export const TeamManager = () => {
                 Leadership & Staff
               </div>
               <div style={{ color: "#ffffff", fontSize: "1.45rem", fontWeight: "800" }}>
-                {members.filter((m) => m.designation?.toLowerCase().includes("ceo") || m.designation?.toLowerCase().includes("lead") || m.designation?.toLowerCase().includes("founder")).length || members.length}
+                {leadershipCount}
               </div>
             </div>
           </div>
@@ -409,11 +475,41 @@ export const TeamManager = () => {
         </div>
       </div>
 
+      {/* Global Error Notice if any */}
+      {errorMsg && !showModal && (
+        <div
+          style={{
+            background: "rgba(239, 68, 68, 0.15)",
+            border: "1px solid rgba(239, 68, 68, 0.3)",
+            color: "#f87171",
+            padding: "12px 18px",
+            borderRadius: "12px",
+            marginBottom: "20px",
+            fontSize: "0.88rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div>
+            <i className="fas fa-exclamation-circle me-2" />
+            {errorMsg}
+          </div>
+          <button
+            type="button"
+            onClick={() => setErrorMsg("")}
+            style={{ background: "none", border: "none", color: "#f87171", cursor: "pointer" }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Team Cards Grid */}
       {loading ? (
         <div className="text-center py-5" style={{ color: "#94a3b8" }}>
           <i className="fas fa-spinner fa-spin fa-2x mb-3 d-block" style={{ color: "var(--pt-primary)" }} />
-          Loading team members...
+          Loading team members from database...
         </div>
       ) : filteredMembers.length === 0 ? (
         <div
@@ -448,18 +544,13 @@ export const TeamManager = () => {
         </div>
       ) : (
         <div className="row g-4">
-          {filteredMembers.map((m) => {
-            let social = {};
-            try {
-              social = typeof m.social === "object" && m.social !== null ? m.social : JSON.parse(m.social || "{}");
-            } catch {
-              social = {};
-            }
-
-            const imgDisplay = getImageDisplay(m.image);
+          {filteredMembers.map((m, idx) => {
+            const social = getCleanSocial(m?.social);
+            const imgDisplay = getImageDisplay(m?.image);
+            const isActive = m?.isActive === true || m?.isActive === 1 || m?.isActive === "1";
 
             return (
-              <div className="col-12 col-sm-6 col-lg-4 col-xl-3" key={m.id}>
+              <div className="col-12 col-sm-6 col-lg-4 col-xl-3" key={m?.id || idx}>
                 <div
                   style={{
                     background: "rgba(30, 41, 59, 0.45)",
@@ -492,7 +583,7 @@ export const TeamManager = () => {
                     }}
                   >
                     <span style={{ fontSize: "0.72rem", color: "#64748b", fontWeight: "600" }}>
-                      Order: #{m.order || 0}
+                      Order: #{m?.order ?? 0}
                     </span>
                     <button
                       type="button"
@@ -504,14 +595,13 @@ export const TeamManager = () => {
                         fontWeight: "700",
                         border: "none",
                         cursor: "pointer",
-                        background:
-                          m.isActive !== false
-                            ? "rgba(16, 185, 129, 0.15)"
-                            : "rgba(239, 68, 68, 0.15)",
-                        color: m.isActive !== false ? "#10b981" : "#ef4444",
+                        background: isActive
+                          ? "rgba(16, 185, 129, 0.15)"
+                          : "rgba(239, 68, 68, 0.15)",
+                        color: isActive ? "#10b981" : "#ef4444",
                       }}
                     >
-                      {m.isActive !== false ? "Active" : "Hidden"}
+                      {isActive ? "Active" : "Hidden"}
                     </button>
                   </div>
 
@@ -534,8 +624,11 @@ export const TeamManager = () => {
                       {imgDisplay ? (
                         <img
                           src={imgDisplay}
-                          alt={m.name}
+                          alt={m?.name || "Member"}
                           style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
                         />
                       ) : (
                         <i className="fas fa-user fa-2x" style={{ color: "#64748b" }} />
@@ -550,7 +643,7 @@ export const TeamManager = () => {
                         marginBottom: "4px",
                       }}
                     >
-                      {m.name}
+                      {m?.name || "Unnamed"}
                     </h4>
                     <div
                       style={{
@@ -560,10 +653,10 @@ export const TeamManager = () => {
                         marginBottom: "10px",
                       }}
                     >
-                      {m.designation}
+                      {m?.designation || "Staff"}
                     </div>
 
-                    {m.bio && (
+                    {m?.bio && (
                       <p
                         style={{
                           color: "#94a3b8",
@@ -587,13 +680,15 @@ export const TeamManager = () => {
                         justifyContent: "center",
                         gap: "8px",
                         marginBottom: "12px",
+                        minHeight: "28px",
                       }}
                     >
-                      {social.linkedin && (
+                      {social.linkedin && social.linkedin !== "#" && (
                         <a
                           href={social.linkedin}
                           target="_blank"
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
+                          title="LinkedIn"
                           style={{
                             width: "28px",
                             height: "28px",
@@ -610,11 +705,12 @@ export const TeamManager = () => {
                           <i className="fab fa-linkedin-in" />
                         </a>
                       )}
-                      {social.github && (
+                      {social.github && social.github !== "#" && (
                         <a
                           href={social.github}
                           target="_blank"
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
+                          title="GitHub"
                           style={{
                             width: "28px",
                             height: "28px",
@@ -631,11 +727,12 @@ export const TeamManager = () => {
                           <i className="fab fa-github" />
                         </a>
                       )}
-                      {social.twitter && (
+                      {social.twitter && social.twitter !== "#" && (
                         <a
                           href={social.twitter}
                           target="_blank"
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
+                          title="Twitter"
                           style={{
                             width: "28px",
                             height: "28px",
@@ -882,7 +979,7 @@ export const TeamManager = () => {
                     <input
                       type="number"
                       value={form.order}
-                      onChange={(e) => setForm({ ...form, order: Number(e.target.value) })}
+                      onChange={(e) => setForm({ ...form, order: Number(e.target.value) || 0 })}
                       style={{
                         width: "100%",
                         padding: "8px 12px",
@@ -934,7 +1031,7 @@ export const TeamManager = () => {
                   {/* Social Links */}
                   <div className="col-12">
                     <label style={{ fontSize: "0.82rem", fontWeight: "600", color: "#cbd5e1", marginBottom: "8px", display: "block" }}>
-                      Social Profiles
+                      Social Profiles (Optional)
                     </label>
                     <div className="row g-2">
                       <div className="col-12 col-md-4">
@@ -951,13 +1048,13 @@ export const TeamManager = () => {
                             }}
                           />
                           <input
-                            type="url"
+                            type="text"
                             placeholder="LinkedIn URL"
-                            value={form.social.linkedin}
+                            value={form.social?.linkedin || ""}
                             onChange={(e) =>
                               setForm({
                                 ...form,
-                                social: { ...form.social, linkedin: e.target.value },
+                                social: { ...(form.social || {}), linkedin: e.target.value },
                               })
                             }
                             style={{
@@ -987,13 +1084,13 @@ export const TeamManager = () => {
                             }}
                           />
                           <input
-                            type="url"
+                            type="text"
                             placeholder="GitHub URL"
-                            value={form.social.github}
+                            value={form.social?.github || ""}
                             onChange={(e) =>
                               setForm({
                                 ...form,
-                                social: { ...form.social, github: e.target.value },
+                                social: { ...(form.social || {}), github: e.target.value },
                               })
                             }
                             style={{
@@ -1023,13 +1120,13 @@ export const TeamManager = () => {
                             }}
                           />
                           <input
-                            type="url"
+                            type="text"
                             placeholder="Twitter / X URL"
-                            value={form.social.twitter}
+                            value={form.social?.twitter || ""}
                             onChange={(e) =>
                               setForm({
                                 ...form,
-                                social: { ...form.social, twitter: e.target.value },
+                                social: { ...(form.social || {}), twitter: e.target.value },
                               })
                             }
                             style={{
@@ -1193,4 +1290,6 @@ export const TeamManager = () => {
     </div>
   );
 };
+
 export default TeamManager;
+

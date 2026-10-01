@@ -2,13 +2,116 @@ import React, { useState } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
 
+// Resilient Error Boundary to safeguard Admin Sidebar from any child panel crashes
+class AdminErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("Admin view error caught by boundary:", error, errorInfo);
+  }
+
+  handleReload = () => {
+    this.setState({ hasError: false, error: null });
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          style={{
+            background: "rgba(30, 41, 59, 0.7)",
+            border: "1px solid rgba(239, 68, 68, 0.3)",
+            borderRadius: "16px",
+            padding: "40px 24px",
+            textAlign: "center",
+            maxWidth: "600px",
+            margin: "40px auto",
+          }}
+        >
+          <div
+            style={{
+              width: "60px",
+              height: "60px",
+              borderRadius: "50%",
+              background: "rgba(239, 68, 68, 0.15)",
+              color: "#ef4444",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "1.8rem",
+              margin: "0 auto 16px",
+            }}
+          >
+            <i className="fas fa-exclamation-triangle" />
+          </div>
+          <h3 style={{ color: "#ffffff", fontWeight: "700", marginBottom: "8px" }}>
+            Section Temporarily Unavailable
+          </h3>
+          <p style={{ color: "#94a3b8", fontSize: "0.88rem", marginBottom: "20px" }}>
+            {this.state.error?.message || "An unexpected error occurred while rendering this management section."}
+          </p>
+          <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+            <button
+              type="button"
+              onClick={this.handleReload}
+              style={{
+                background: "var(--pt-primary)",
+                color: "#ffffff",
+                border: "none",
+                padding: "8px 20px",
+                borderRadius: "8px",
+                fontSize: "0.85rem",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+            >
+              <i className="fas fa-redo me-2" /> Reload Section
+            </button>
+            <a
+              href="/admin/dashboard"
+              style={{
+                background: "rgba(255, 255, 255, 0.08)",
+                color: "#cbd5e1",
+                textDecoration: "none",
+                padding: "8px 20px",
+                borderRadius: "8px",
+                fontSize: "0.85rem",
+                fontWeight: "600",
+                display: "inline-flex",
+                alignItems: "center",
+              }}
+            >
+              Dashboard
+            </a>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export const AdminLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const rawUser = localStorage.getItem("pt_admin_user");
-  const user = rawUser ? JSON.parse(rawUser) : { name: "Administrator" };
+  let user = { name: "Administrator" };
+  try {
+    const rawUser = localStorage.getItem("pt_admin_user");
+    if (rawUser && rawUser !== "undefined" && rawUser !== "null") {
+      user = JSON.parse(rawUser);
+    }
+  } catch {
+    user = { name: "Administrator" };
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("pt_admin_token");
@@ -379,7 +482,9 @@ export const AdminLayout = () => {
 
         {/* Dynamic Nested View */}
         <main style={{ padding: "30px", flexGrow: 1, overflowX: "hidden" }}>
-          <Outlet />
+          <AdminErrorBoundary>
+            <Outlet />
+          </AdminErrorBoundary>
         </main>
       </div>
     </div>
