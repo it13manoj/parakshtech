@@ -450,15 +450,25 @@ export const Portfolio = () => {
   const openProjectModal = useCallback((project, initialImgIdx = 0) => {
     setSelectedProject(project);
     setModalImageIdx(initialImgIdx);
-    document.body.style.overflow = "hidden";
   }, []);
 
   // Close modal
   const closeProjectModal = useCallback(() => {
     setSelectedProject(null);
     setModalImageIdx(0);
-    document.body.style.overflow = "auto";
   }, []);
+
+  // Lock body scroll only while modal is active; always restore on close or unmount
+  useEffect(() => {
+    if (selectedProject) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [selectedProject]);
 
   // Modal image navigation
   const nextModalImage = useCallback(() => {
@@ -475,8 +485,8 @@ export const Portfolio = () => {
 
   // Keyboard navigation when modal is open
   useEffect(() => {
+    if (!selectedProject) return;
     const handleKeyDown = (e) => {
-      if (!selectedProject) return;
       if (e.key === "Escape") {
         closeProjectModal();
       } else if (e.key === "ArrowRight") {

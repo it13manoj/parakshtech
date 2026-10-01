@@ -1,16 +1,19 @@
 import React, { useEffect, useRef } from "react";
 
 /**
- * TechNetworkCanvas - Interactive Particle & Constellation Graph Canvas
- * Reacts to mouse move, repulsion, and distance-based dynamic linking.
+ * TechNetworkCanvas - High-Performance Particle & Constellation Graph
+ * Optimized with:
+ * - IntersectionObserver to automatically freeze RAF loop when scrolled out of view
+ * - Auto mobile throttling (lightweight particle count, disabled mouse listeners)
+ * - Passive listeners to guarantee 100% butter-smooth mobile scrolling
  */
 export const TechNetworkCanvas = ({
   className = "pt-canvas-bg",
-  particleCount = 65,
+  particleCount = 50,
   particleColor = "rgba(245, 32, 41, 0.45)",
   secondaryColor = "rgba(99, 102, 241, 0.4)",
   lineColor = "rgba(245, 32, 41, 0.12)",
-  maxDistance = 140,
+  maxDistance = 120,
   interactive = true,
 }) => {
   const canvasRef = useRef(null);
@@ -18,30 +21,44 @@ export const TechNetworkCanvas = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    let animationFrameId;
+    const isMobile =
+      typeof window !== "undefined" &&
+      (window.innerWidth < 768 || window.matchMedia("(hover: none), (pointer: coarse)").matches);
+
+    // On mobile, drastically reduce workload to preserve 60-120fps touch scrolling
+    const effectiveCount = isMobile ? Math.min(16, particleCount) : particleCount;
+    const effectiveDistance = isMobile ? 65 : maxDistance;
+
+    let animationFrameId = null;
+    let isVisible = true;
     let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth);
-    let height = (canvas.height = canvas.parentElement?.clientHeight || window.innerHeight);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || 450);
 
     const mouse = {
       x: null,
       y: null,
-      radius: 160,
+      radius: 140,
     };
 
-    // Responsive resize handler
+    // Responsive resize handler with RAF debounce
+    let resizeRaf = null;
     const handleResize = () => {
-      if (!canvas || !canvas.parentElement) return;
-      width = canvas.width = canvas.parentElement.clientWidth;
-      height = canvas.height = canvas.parentElement.clientHeight;
+      if (resizeRaf) cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(() => {
+        if (!canvas || !canvas.parentElement) return;
+        width = canvas.width = canvas.parentElement.clientWidth;
+        height = canvas.height = canvas.parentElement.clientHeight;
+      });
     };
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize, { passive: true });
 
-    // Mouse events on parent or canvas
+    // Mouse events only enabled on desktop pointer devices
     const handleMouseMove = (e) => {
+      if (isMobile) return;
       const rect = canvas.getBoundingClientRect();
       mouse.x = e.clientX - rect.left;
       mouse.y = e.clientY - rect.top;
@@ -53,28 +70,31 @@ export const TechNetworkCanvas = ({
     };
 
     const targetElement = canvas.parentElement || canvas;
-    if (interactive) {
-      targetElement.addEventListener("mousemove", handleMouseMove);
-      targetElement.addEventListener("mouseleave", handleMouseLeave);
+    if (interactive && !isMobile) {
+      targetElement.addEventListener("mousemove", handleMouseMove, { passive: true });
+      targetElement.addEventListener("mouseleave", handleMouseLeave, { passive: true });
     }
 
     // Particle object factory
     const particles = [];
-    const count = Math.min(particleCount, Math.floor((width * height) / 12000));
-
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < effectiveCount; i++) {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.8,
-        vy: (Math.random() - 0.5) * 0.8,
-        radius: Math.random() * 2 + 1.2,
+        vx: (Math.random() - 0.5) * (isMobile ? 0.35 : 0.6),
+        vy: (Math.random() - 0.5) * (isMobile ? 0.35 : 0.6),
+        radius: Math.random() * 1.8 + 1,
         color: i % 3 === 0 ? secondaryColor : particleColor,
       });
     }
 
     // Main animation loop
     const animate = () => {
+      if (!isVisible) {
+        animationFrameId = null;
+        return; // Stop animation loop when scrolled offscreen
+      }
+
       ctx.clearRect(0, 0, width, height);
 
       // Draw and update particles
@@ -89,26 +109,22 @@ export const TechNetworkCanvas = ({
         if (p.x < 0 || p.x > width) p.vx *= -1;
         if (p.y < 0 || p.y > height) p.vy *= -1;
 
-        // Interactive mouse interaction
-        if (interactive && mouse.x !== null && mouse.y !== null) {
+        // Interactive mouse interaction (Desktop only)
+        if (!isMobile && mouse.x !== null && mouse.y !== null) {
           const dx = mouse.x - p.x;
           const dy = mouse.y - p.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < mouse.radius) {
-            // Gentle repulsive force
             const force = (mouse.radius - dist) / mouse.radius;
-            const fx = (dx / dist) * force * 2.5;
-            const fy = (dy / dist) * force * 2.5;
-            p.x -= fx;
-            p.y -= fy;
+            p.x -= (dx / dist) * force * 2;
+            p.y -= (dy / dist) * force * 2;
 
-            // Draw line to mouse
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(mouse.x, mouse.y);
-            ctx.strokeStyle = `rgba(245, 32, 41, ${0.3 * (1 - dist / mouse.radius)})`;
-            ctx.lineWidth = 0.9;
+            ctx.strokeStyle = `rgba(245, 32, 41, ${0.25 * (1 - dist / mouse.radius)})`;
+            ctx.lineWidth = 0.8;
             ctx.stroke();
           }
         }
@@ -126,12 +142,12 @@ export const TechNetworkCanvas = ({
           const dy = p.y - p2.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          if (dist < maxDistance) {
-            const alpha = 1 - dist / maxDistance;
+          if (dist < effectiveDistance) {
+            const alpha = 1 - dist / effectiveDistance;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = lineColor.replace(/[\d.]+\)$/, `${(alpha * 0.25).toFixed(2)})`);
+            ctx.strokeStyle = lineColor.replace(/[\d.]+\)$/, `${(alpha * 0.22).toFixed(2)})`);
             ctx.lineWidth = 0.6;
             ctx.stroke();
           }
@@ -141,19 +157,37 @@ export const TechNetworkCanvas = ({
       animationFrameId = requestAnimationFrame(animate);
     };
 
-    animate();
+    // IntersectionObserver to freeze canvas when scrolled out of view
+    let observer = null;
+    if (typeof IntersectionObserver !== "undefined") {
+      observer = new IntersectionObserver(
+        (entries) => {
+          const [entry] = entries;
+          isVisible = entry.isIntersecting;
+          if (isVisible && !animationFrameId) {
+            animationFrameId = requestAnimationFrame(animate);
+          }
+        },
+        { threshold: 0.05 }
+      );
+      observer.observe(canvas);
+    } else {
+      animationFrameId = requestAnimationFrame(animate);
+    }
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      if (observer) observer.disconnect();
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      if (resizeRaf) cancelAnimationFrame(resizeRaf);
       window.removeEventListener("resize", handleResize);
-      if (interactive) {
+      if (interactive && !isMobile) {
         targetElement.removeEventListener("mousemove", handleMouseMove);
         targetElement.removeEventListener("mouseleave", handleMouseLeave);
       }
     };
   }, [particleCount, particleColor, secondaryColor, lineColor, maxDistance, interactive]);
 
-  return <canvas ref={canvasRef} className={className} />;
+  return <canvas ref={canvasRef} className={className} style={{ pointerEvents: "none" }} />;
 };
 
 export default TechNetworkCanvas;

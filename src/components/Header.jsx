@@ -8,16 +8,24 @@ export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
+    let lastScrolled = false;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY >= 20);
+      const scrolled = window.scrollY >= 20;
+      if (scrolled !== lastScrolled) {
+        lastScrolled = scrolled;
+        setIsScrolled(scrolled);
+      }
     };
-    window.addEventListener("scroll", handleScroll);
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu upon navigation
+  // Close mobile menu and ensure body scroll is never locked
   useEffect(() => {
     setIsMenuOpen(false);
+    document.body.style.overflow = "";
+    document.body.classList.remove("noscroll");
   }, [location.pathname]);
 
   const isActive = (path) => {

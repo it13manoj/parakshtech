@@ -23,11 +23,16 @@ export const Footer = () => {
         // Fallback gracefully if API is offline
       });
 
+    let lastShow = false;
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 300);
+      const show = window.scrollY > 300;
+      if (show !== lastShow) {
+        lastShow = show;
+        setShowScrollTop(show);
+      }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       isMounted = false;
       window.removeEventListener("scroll", handleScroll);

@@ -89,6 +89,8 @@ export const TechMarquee = () => {
           display: flex;
           gap: 24px;
           width: max-content;
+          will-change: transform;
+          transform: translate3d(0, 0, 0);
           animation: pt-marquee-scroll 32s linear infinite;
         }
         .pt-marquee-track:hover {
@@ -101,8 +103,8 @@ export const TechMarquee = () => {
           box-shadow: 0 4px 15px rgba(245, 32, 41, 0.25);
         }
         @keyframes pt-marquee-scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-50%, 0, 0); }
         }
       `}</style>
     </div>

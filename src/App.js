@@ -27,11 +27,15 @@ import AdminSettings from "./components/admin/AdminSettings";
 import "./assets/css/modern-creative.css";
 import "./App.css";
 
-// Helper component that scrolls to top on route change
+// Helper component that scrolls to top on route change and guarantees free scrolling
 function ScrollToTopOnRoute() {
   const { pathname } = useLocation();
 
   useEffect(() => {
+    // Safeguard: Always ensure body scroll is unlocked on route transition
+    document.body.style.overflow = "";
+    document.body.classList.remove("noscroll");
+
     window.scrollTo({
       top: 0,
       left: 0,

@@ -1,57 +1,89 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 /**
- * CursorGlow - Interactive Ambient Mouse Follower Graphic
- * Casts a subtle neon radial glow behind elements as the user navigates.
+ * CursorGlow - High-Performance Interactive Ambient Mouse Follower
+ * Uses direct DOM transforms (Zero React re-renders) and is 100% disabled
+ * on touch/mobile devices to prevent touch scroll interference.
  */
 export const CursorGlow = () => {
-  const [pos, setPos] = useState({ x: -100, y: -100 });
-  const [visible, setVisible] = useState(false);
+  const glowRef = useRef(null);
 
   useEffect(() => {
-    // Only enable on pointer-capable devices (mouse/trackpad, not touch)
-    if (window.matchMedia("(pointer: coarse)").matches) return;
+    // Completely disable on mobile and touch-only devices
+    if (
+      typeof window === "undefined" ||
+      window.innerWidth < 1024 ||
+      window.matchMedia("(hover: none), (pointer: coarse)").matches
+    ) {
+      return;
+    }
 
-    let rafId;
-    let targetX = -100;
-    let targetY = -100;
-    let currentX = -100;
-    let currentY = -100;
+    const glowEl = glowRef.current;
+    if (!glowEl) return;
+
+    let rafId = null;
+    let targetX = -300;
+    let targetY = -300;
+    let currentX = -300;
+    let currentY = -300;
+    let isMoving = false;
+
+    const loop = () => {
+      // Lerp movement
+      currentX += (targetX - currentX) * 0.15;
+      currentY += (targetY - currentY) * 0.15;
+
+      if (glowEl) {
+        glowEl.style.transform = `translate3d(${currentX - 240}px, ${currentY - 240}px, 0)`;
+      }
+
+      // Stop loop if practically reached destination to save CPU
+      if (Math.abs(targetX - currentX) > 0.5 || Math.abs(targetY - currentY) > 0.5) {
+        rafId = requestAnimationFrame(loop);
+      } else {
+        isMoving = false;
+      }
+    };
 
     const handleMouseMove = (e) => {
       targetX = e.clientX;
       targetY = e.clientY;
-      if (!visible) setVisible(true);
+      if (glowEl) {
+        glowEl.style.opacity = "1";
+      }
+      if (!isMoving) {
+        isMoving = true;
+        rafId = requestAnimationFrame(loop);
+      }
     };
 
     const handleMouseLeave = () => {
-      setVisible(false);
+      if (glowEl) {
+        glowEl.style.opacity = "0";
+      }
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseleave", handleMouseLeave);
-
-    // Smooth lerp animation loop
-    const loop = () => {
-      currentX += (targetX - currentX) * 0.12;
-      currentY += (targetY - currentY) * 0.12;
-      setPos({ x: currentX, y: currentY });
-      rafId = requestAnimationFrame(loop);
-    };
-
-    rafId = requestAnimationFrame(loop);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    document.addEventListener("mouseleave", handleMouseLeave, { passive: true });
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseleave", handleMouseLeave);
-      cancelAnimationFrame(rafId);
+      if (rafId) cancelAnimationFrame(rafId);
     };
-  }, [visible]);
+  }, []);
 
-  if (!visible) return null;
+  // Return null on touch/mobile devices
+  if (
+    typeof window !== "undefined" &&
+    (window.innerWidth < 1024 || window.matchMedia("(hover: none), (pointer: coarse)").matches)
+  ) {
+    return null;
+  }
 
   return (
     <div
+      ref={glowRef}
       style={{
         position: "fixed",
         top: 0,
@@ -59,12 +91,15 @@ export const CursorGlow = () => {
         width: "480px",
         height: "480px",
         borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(245, 32, 41, 0.08) 0%, rgba(99, 102, 241, 0.04) 40%, transparent 70%)",
-        transform: `translate3d(${pos.x - 240}px, ${pos.y - 240}px, 0)`,
+        background:
+          "radial-gradient(circle, rgba(245, 32, 41, 0.08) 0%, rgba(99, 102, 241, 0.04) 40%, transparent 70%)",
+        transform: "translate3d(-300px, -300px, 0)",
         pointerEvents: "none",
         zIndex: 9998,
-        transition: "opacity 0.3s ease",
+        opacity: 0,
+        transition: "opacity 0.4s ease",
         filter: "blur(20px)",
+        willChange: "transform",
       }}
     />
   );

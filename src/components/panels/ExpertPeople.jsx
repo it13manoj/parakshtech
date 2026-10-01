@@ -429,4 +429,3 @@ export const ExpertPeople = () => {
 };
 
 export default ExpertPeople;
-export default ExpertPeople;
