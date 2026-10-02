@@ -1882,6 +1882,12 @@ p.lead {
   line-height: 1.7 !important;
 }
 
+.pt-hero-lead {
+  font-size: clamp(0.95rem, 2vw + 0.3rem, 1.15rem);
+  line-height: 1.75;
+  max-width: 620px;
+}
+
 /* --------------------------------------------------------------------------
    Tablet Devices (max-width: 991.98px)
    -------------------------------------------------------------------------- */
@@ -2256,6 +2262,432 @@ p.lead {
 
   .pt-stat-number {
     font-size: 1.75rem !important;
+  }
+}
+
+/* ==========================================================================
+   Big Screen & Ultra-Wide Responsiveness (1400px, 1600px, 1920px, 2560px+)
+   Guarantees generous container widths, proportional typography, balanced
+   spatial layout, and eliminates narrow "pillar in the center" syndrome.
+   ========================================================================== */
+
+/* 1. Large Laptops & Desktops (min-width: 1400px) */
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1360px !important;
+  }
+
+  header#site-header .container {
+    max-width: 1360px !important;
+  }
+
+  .pt-hero-wrapper {
+    min-height: 85vh;
+    padding: 130px 0 75px 0;
+  }
+
+  h1.display-4 {
+    font-size: clamp(3rem, 3.8vw, 3.75rem) !important;
+    line-height: 1.18 !important;
+  }
+
+  h2.display-6 {
+    font-size: clamp(2.2rem, 2.5vw, 2.5rem) !important;
+  }
+
+  .pt-hero-lead,
+  p.lead {
+    font-size: 1.18rem !important;
+    max-width: 680px !important;
+  }
+}
+
+/* 2. Extra Large / Standard Full HD (min-width: 1600px) */
+@media (min-width: 1600px) {
+  .container {
+    max-width: 1540px !important;
+  }
+
+  header#site-header .container {
+    max-width: 1540px !important;
+  }
+
+  header#site-header {
+    min-height: 80px !important;
+  }
+
+  .navbar-brand.pt-brand-logo {
+    font-size: 1.45rem !important;
+  }
+
+  .navbar-brand.pt-brand-logo img {
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  .pt-nav-link {
+    font-size: 0.98rem !important;
+    padding: 8px 16px !important;
+  }
+
+  .pt-header-cta-btn {
+    padding: 10px 24px !important;
+    font-size: 0.95rem !important;
+  }
+
+  /* Hero Section */
+  .pt-hero-wrapper {
+    min-height: 85vh;
+    padding: 145px 0 85px 0;
+  }
+
+  h1.display-4 {
+    font-size: 4rem !important;
+    line-height: 1.15 !important;
+    letter-spacing: -1.2px !important;
+  }
+
+  .pt-badge-live {
+    font-size: 0.88rem !important;
+    padding: 7px 18px !important;
+    margin-bottom: 20px !important;
+  }
+
+  .pt-hero-lead,
+  p.lead {
+    font-size: 1.25rem !important;
+    line-height: 1.8 !important;
+    max-width: 760px !important;
+  }
+
+  .text-center.mx-auto[style*="max-width"] {
+    max-width: 860px !important;
+  }
+
+  .pt-btn-primary,
+  .pt-btn-outline {
+    padding: 14px 28px !important;
+    font-size: 1rem !important;
+  }
+
+  /* 3D Tech Card */
+  .pt-tech-card-3d {
+    padding: 2.6rem !important;
+    border-radius: 22px !important;
+  }
+
+  .pt-tech-card-badge {
+    padding: 12px 18px !important;
+  }
+
+  .pt-tech-card-badge.badge-top-right {
+    top: -20px;
+    right: -15px;
+  }
+
+  .pt-tech-card-badge.badge-bottom-left {
+    bottom: -20px;
+    left: -15px;
+  }
+
+  /* Stats Section */
+  .pt-stats-section {
+    padding: 70px 0 !important;
+  }
+
+  .pt-stat-number {
+    font-size: 3.5rem !important;
+  }
+
+  .pt-stat-label {
+    font-size: 0.98rem !important;
+  }
+
+  /* Valued Services */
+  .pt-service-icon-box {
+    width: 58px !important;
+    height: 58px !important;
+    font-size: 1.4rem !important;
+  }
+
+  /* Why Choose Us */
+  .pt-experience-badge {
+    padding: 22px 28px !important;
+    border-radius: 20px !important;
+  }
+
+  .pt-experience-badge > div:first-child {
+    font-size: 2.8rem !important;
+  }
+
+  /* Portfolio Grid */
+  .pt-gallery-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 32px !important;
+  }
+
+  .pt-gallery-thumbnail-wrap {
+    height: 250px !important;
+  }
+
+  /* Inner Hero */
+  .pt-inner-hero {
+    padding: 155px 0 85px 0 !important;
+  }
+}
+
+/* 3. Ultra-Wide & 2K QHD (min-width: 1920px) */
+@media (min-width: 1920px) {
+  .container {
+    max-width: 1740px !important;
+  }
+
+  header#site-header .container {
+    max-width: 1740px !important;
+  }
+
+  header#site-header {
+    min-height: 86px !important;
+    padding: 12px 0 !important;
+  }
+
+  .navbar-brand.pt-brand-logo {
+    font-size: 1.55rem !important;
+  }
+
+  .navbar-brand.pt-brand-logo img {
+    width: 50px !important;
+    height: 50px !important;
+  }
+
+  .pt-nav-link {
+    font-size: 1.05rem !important;
+    padding: 10px 18px !important;
+  }
+
+  .pt-header-cta-btn {
+    padding: 12px 28px !important;
+    font-size: 1rem !important;
+  }
+
+  /* Hero Section */
+  .pt-hero-wrapper {
+    min-height: 82vh;
+    padding: 160px 0 95px 0 !important;
+  }
+
+  h1.display-4 {
+    font-size: 4.5rem !important;
+    line-height: 1.14 !important;
+    letter-spacing: -1.5px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .pt-badge-live {
+    font-size: 0.94rem !important;
+    padding: 8px 22px !important;
+  }
+
+  .pt-hero-lead,
+  p.lead {
+    font-size: 1.32rem !important;
+    line-height: 1.85 !important;
+    max-width: 860px !important;
+    margin-bottom: 35px !important;
+  }
+
+  .text-center.mx-auto[style*="max-width"] {
+    max-width: 980px !important;
+  }
+
+  .pt-btn-primary,
+  .pt-btn-outline {
+    padding: 16px 34px !important;
+    font-size: 1.05rem !important;
+    border-radius: var(--pt-radius-md) !important;
+  }
+
+  /* Trust Badges in Hero */
+  .pt-hero-wrapper .d-flex.flex-wrap.gap-4.pt-3.align-items-center {
+    gap: 35px !important;
+  }
+
+  .pt-hero-wrapper .d-flex.flex-wrap.gap-4.pt-3.align-items-center span {
+    font-size: 1.02rem !important;
+  }
+
+  /* 3D Tech Hub Card */
+  .pt-tech-card-3d {
+    padding: 3rem !important;
+    border-radius: 24px !important;
+  }
+
+  .pt-tech-card-badge {
+    padding: 14px 22px !important;
+    font-size: 1rem !important;
+  }
+
+  /* Stats Section */
+  .pt-stats-section {
+    padding: 80px 0 !important;
+  }
+
+  .pt-stat-number {
+    font-size: 4rem !important;
+  }
+
+  .pt-stat-label {
+    font-size: 1.05rem !important;
+  }
+
+  /* Section Headings */
+  h2.display-6 {
+    font-size: 2.85rem !important;
+    line-height: 1.25 !important;
+  }
+
+  /* Valued Services */
+  .pt-service-card {
+    padding: 2.4rem !important;
+  }
+
+  /* Why Choose Us Showcase */
+  .pt-experience-badge {
+    bottom: 35px !important;
+    right: 35px !important;
+    padding: 24px 34px !important;
+  }
+
+  .pt-experience-badge > div:first-child {
+    font-size: 3.2rem !important;
+  }
+
+  /* Portfolio Gallery */
+  .pt-gallery-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 36px !important;
+  }
+
+  .pt-gallery-thumbnail-wrap {
+    height: 280px !important;
+  }
+
+  /* Inner Hero */
+  .pt-inner-hero {
+    padding: 170px 0 95px 0 !important;
+  }
+
+  /* Footer */
+  .pt-footer {
+    padding: 70px 0 35px 0 !important;
+  }
+}
+
+/* 4. Super Ultra-Wide & 4K UHD (min-width: 2560px) */
+@media (min-width: 2560px) {
+  .container {
+    max-width: 2180px !important;
+  }
+
+  header#site-header .container {
+    max-width: 2180px !important;
+  }
+
+  header#site-header {
+    min-height: 96px !important;
+    padding: 16px 0 !important;
+  }
+
+  .navbar-brand.pt-brand-logo {
+    font-size: 1.75rem !important;
+  }
+
+  .navbar-brand.pt-brand-logo img {
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  .pt-nav-link {
+    font-size: 1.15rem !important;
+    padding: 12px 22px !important;
+  }
+
+  .pt-header-cta-btn {
+    padding: 14px 34px !important;
+    font-size: 1.1rem !important;
+  }
+
+  /* Hero Section */
+  .pt-hero-wrapper {
+    min-height: 78vh;
+    padding: 180px 0 110px 0 !important;
+  }
+
+  h1.display-4 {
+    font-size: 5.2rem !important;
+    line-height: 1.12 !important;
+    letter-spacing: -2px !important;
+  }
+
+  .pt-hero-lead,
+  p.lead {
+    font-size: 1.45rem !important;
+    line-height: 1.9 !important;
+    max-width: 1000px !important;
+  }
+
+  .text-center.mx-auto[style*="max-width"] {
+    max-width: 1160px !important;
+  }
+
+  .pt-btn-primary,
+  .pt-btn-outline {
+    padding: 18px 40px !important;
+    font-size: 1.15rem !important;
+  }
+
+  /* 3D Tech Card */
+  .pt-tech-card-3d {
+    padding: 3.5rem !important;
+    border-radius: 28px !important;
+  }
+
+  /* Section Headings */
+  h2.display-6 {
+    font-size: 3.4rem !important;
+  }
+
+  /* Stats Section */
+  .pt-stats-section {
+    padding: 95px 0 !important;
+  }
+
+  .pt-stat-number {
+    font-size: 4.8rem !important;
+  }
+
+  .pt-stat-label {
+    font-size: 1.15rem !important;
+  }
+
+  /* Portfolio 4 Columns on 4K */
+  .pt-gallery-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 40px !important;
+  }
+
+  .pt-gallery-thumbnail-wrap {
+    height: 300px !important;
+  }
+
+  /* Inner Hero */
+  .pt-inner-hero {
+    padding: 190px 0 110px 0 !important;
+  }
+
+  /* Footer */
+  .pt-footer {
+    padding: 85px 0 45px 0 !important;
   }
 }
 

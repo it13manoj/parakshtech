@@ -83,12 +83,10 @@ const Hero = () => {
             </h1>
 
             <p
-              className="lead mb-4"
+              className="lead mb-4 pt-hero-lead"
               style={{
                 color: "#475569",
-                fontSize: "1.12rem",
                 lineHeight: "1.75",
-                maxWidth: "620px",
               }}
             >
               {heroBanner?.heading ||
