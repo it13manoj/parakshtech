@@ -1,20 +1,145 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import axios from "axios";
 import API from "../../Config/API";
+
+// Helper: Extract sender initials
+const getInitials = (name) => {
+  if (!name) return "?";
+  const parts = name.trim().split(" ");
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
+// Helper: Consistent avatar background color based on sender name
+const getAvatarBg = (name) => {
+  const colors = [
+    "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+    "linear-gradient(135deg, #10b981 0%, #047857 100%)",
+    "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
+    "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+    "linear-gradient(135deg, #ec4899 0%, #be185d 100%)",
+    "linear-gradient(135deg, #06b6d4 0%, #0e7490 100%)",
+    "linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)",
+  ];
+  let hash = 0;
+  for (let i = 0; i < (name || "").length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+};
+
+// Helper: Formatted short date for email list
+const formatShortDate = (isoStr) => {
+  if (!isoStr) return "Recent";
+  const date = new Date(isoStr);
+  if (isNaN(date.getTime())) return "Recent";
+
+  const now = new Date();
+  const isToday = date.toDateString() === now.toDateString();
+
+  if (isToday) {
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+
+  const yesterday = new Date();
+  yesterday.setDate(now.getDate() - 1);
+  if (date.toDateString() === yesterday.toDateString()) {
+    return "Yesterday";
+  }
+
+  return date.toLocaleDateString([], { month: "short", day: "numeric" });
+};
+
+// Helper: Formatted full date & time for letterhead
+const formatFullDate = (isoStr) => {
+  if (!isoStr) return "Unknown date";
+  const date = new Date(isoStr);
+  if (isNaN(date.getTime())) return "Unknown date";
+  return date.toLocaleString([], {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const STATUS_CONFIG = {
+  new: {
+    bg: "rgba(245, 158, 11, 0.15)",
+    color: "#fbbf24",
+    border: "rgba(245, 158, 11, 0.3)",
+    label: "New Lead",
+    icon: "fas fa-bell",
+  },
+  in_progress: {
+    bg: "rgba(59, 130, 246, 0.15)",
+    color: "#60a5fa",
+    border: "rgba(59, 130, 246, 0.3)",
+    label: "In Discussion",
+    icon: "fas fa-comments",
+  },
+  contacted: {
+    bg: "rgba(16, 185, 129, 0.15)",
+    color: "#34d399",
+    border: "rgba(16, 185, 129, 0.3)",
+    label: "Contacted",
+    icon: "fas fa-check-circle",
+  },
+  archived: {
+    bg: "rgba(100, 116, 139, 0.15)",
+    color: "#94a3b8",
+    border: "rgba(100, 116, 139, 0.3)",
+    label: "Archived",
+    icon: "fas fa-archive",
+  },
+};
+
+const REPLY_TEMPLATES = [
+  {
+    id: "ack",
+    label: "Acknowledge Lead",
+    subjectPrefix: "Re: ",
+    body: (name, subject) =>
+      `Hi ${name},\n\nThank you for reaching out to Paraksh Technologies regarding "${subject}".\n\nWe have received your requirements and one of our solution architects will review them and follow up with you within 24 hours.\n\nBest regards,\nParaksh Technologies Team\nsupport@parakshtech.com`,
+  },
+  {
+    id: "call",
+    label: "Schedule Discovery Call",
+    subjectPrefix: "Discovery Call: ",
+    body: (name, subject) =>
+      `Hi ${name},\n\nThanks for contacting Paraksh Technologies regarding "${subject}".\n\nWe would love to schedule a brief 15-minute technical discovery call to discuss your project vision, timeline, and architecture options.\n\nPlease let us know what time slots work best for you this week.\n\nLooking forward to speaking with you!\n\nBest regards,\nParaksh Technologies Team`,
+  },
+  {
+    id: "quote",
+    label: "Request Project Specs",
+    subjectPrefix: "Project Details Request: ",
+    body: (name, subject) =>
+      `Hi ${name},\n\nThank you for contacting Paraksh Technologies.\n\nTo help us prepare an accurate proposal and estimate for "${subject}", could you please share a few details:\n1. Preferred timeline & launch date\n2. Key features or integrations required\n3. Target audience and scale\n\nWe look forward to collaborating with you.\n\nBest regards,\nParaksh Technologies Team`,
+  },
+];
 
 export const ContactsManager = () => {
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("desc"); // 'desc' | 'asc'
 
-  // Detail / Reply Modal
+  // Selected email for reading pane
   const [selectedInquiry, setSelectedInquiry] = useState(null);
-  const [statusUpdate, setStatusUpdate] = useState("new");
+
+  // Email reading state
   const [notesUpdate, setNotesUpdate] = useState("");
   const [savingNote, setSavingNote] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [toastMsg, setToastMsg] = useState("");
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [copiedPhone, setCopiedPhone] = useState(false);
+
+  // Mobile layout state
+  const [isMobileView, setIsMobileView] = useState(false);
 
   const token = localStorage.getItem("pt_admin_token");
   const authHeaders = useMemo(
@@ -24,48 +149,88 @@ export const ContactsManager = () => {
     [token]
   );
 
+  // Responsive listener
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth < 992);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // Load inquiries
-  const loadInquiries = async () => {
+  const loadInquiries = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axios.get(`${API.BASE_URL}admin/contacts`, authHeaders);
       if (res.data?.success) {
-        setInquiries(res.data.data || []);
+        const data = res.data.data || [];
+        setInquiries(data);
+        // Automatically select the first message on desktop if none selected
+        if (data.length > 0 && !selectedInquiry && window.innerWidth >= 992) {
+          setSelectedInquiry(data[0]);
+          setNotesUpdate(data[0].notes || "");
+        }
       }
     } catch {
-      // Inquiries might be empty initially
       setInquiries([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [authHeaders, selectedInquiry]);
 
   useEffect(() => {
     loadInquiries();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Filter inquiries
-  const filteredInquiries = inquiries.filter((inq) => {
-    const matchStatus = statusFilter === "all" || inq.status === statusFilter;
-    if (!matchStatus) return false;
-    if (!search.trim()) return true;
-    const q = search.toLowerCase();
-    return (
-      inq.name?.toLowerCase().includes(q) ||
-      inq.email?.toLowerCase().includes(q) ||
-      inq.phone?.toLowerCase().includes(q) ||
-      inq.subject?.toLowerCase().includes(q) ||
-      inq.contents?.toLowerCase().includes(q)
-    );
-  });
+  // Update selected inquiry notes when selected message changes
+  useEffect(() => {
+    if (selectedInquiry) {
+      setNotesUpdate(selectedInquiry.notes || "");
+    }
+  }, [selectedInquiry]);
 
-  // Open inquiry detail
-  const handleOpenDetail = (inq) => {
-    setSelectedInquiry(inq);
-    setStatusUpdate(inq.status || "new");
-    setNotesUpdate(inq.notes || "");
-  };
+  // Status badges & counts
+  const newCount = inquiries.filter((i) => i.status === "new").length;
+  const inProgressCount = inquiries.filter((i) => i.status === "in_progress").length;
+  const contactedCount = inquiries.filter((i) => i.status === "contacted").length;
+  const archivedCount = inquiries.filter((i) => i.status === "archived").length;
+
+  // Filtered & Sorted Inquiries
+  const filteredInquiries = useMemo(() => {
+    return inquiries
+      .filter((inq) => {
+        const matchStatus = statusFilter === "all" || inq.status === statusFilter;
+        if (!matchStatus) return false;
+        if (!search.trim()) return true;
+        const q = search.toLowerCase();
+        return (
+          inq.name?.toLowerCase().includes(q) ||
+          inq.email?.toLowerCase().includes(q) ||
+          inq.phone?.toLowerCase().includes(q) ||
+          inq.subject?.toLowerCase().includes(q) ||
+          inq.contents?.toLowerCase().includes(q)
+        );
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.createdAt || 0).getTime();
+        const dateB = new Date(b.createdAt || 0).getTime();
+        return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
+      });
+  }, [inquiries, statusFilter, search, sortOrder]);
+
+  // When selected inquiry gets deleted or filtered out, manage selection
+  useEffect(() => {
+    if (selectedInquiry && !filteredInquiries.some((i) => i.id === selectedInquiry.id)) {
+      if (filteredInquiries.length > 0 && !isMobileView) {
+        setSelectedInquiry(filteredInquiries[0]);
+      } else if (isMobileView) {
+        setSelectedInquiry(null);
+      }
+    }
+  }, [filteredInquiries, selectedInquiry, isMobileView]);
 
   // Update status or notes
   const handleUpdateStatus = async (id, newStatus, newNotes = null) => {
@@ -78,7 +243,9 @@ export const ContactsManager = () => {
 
       setInquiries((prev) =>
         prev.map((item) =>
-          item.id === id ? { ...item, status: newStatus, ...(newNotes !== null ? { notes: newNotes } : {}) } : item
+          item.id === id
+            ? { ...item, status: newStatus, ...(newNotes !== null ? { notes: newNotes } : {}) }
+            : item
         )
       );
 
@@ -90,10 +257,42 @@ export const ContactsManager = () => {
         }));
       }
 
-      setToastMsg("Inquiry status updated successfully!");
+      setToastMsg(`Status changed to ${STATUS_CONFIG[newStatus]?.label || newStatus}`);
       setTimeout(() => setToastMsg(""), 3000);
     } catch {
       setToastMsg("Failed to update status");
+      setTimeout(() => setToastMsg(""), 3000);
+    } finally {
+      setSavingNote(false);
+    }
+  };
+
+  // Save internal notes
+  const handleSaveNotes = async () => {
+    if (!selectedInquiry) return;
+    try {
+      setSavingNote(true);
+      await axios.patch(
+        `${API.BASE_URL}admin/contacts/${selectedInquiry.id}`,
+        { notes: notesUpdate },
+        authHeaders
+      );
+
+      setInquiries((prev) =>
+        prev.map((item) =>
+          item.id === selectedInquiry.id ? { ...item, notes: notesUpdate } : item
+        )
+      );
+
+      setSelectedInquiry((prev) => ({
+        ...prev,
+        notes: notesUpdate,
+      }));
+
+      setToastMsg("Internal staff notes saved successfully!");
+      setTimeout(() => setToastMsg(""), 3000);
+    } catch {
+      setToastMsg("Failed to save notes");
       setTimeout(() => setToastMsg(""), 3000);
     } finally {
       setSavingNote(false);
@@ -106,11 +305,14 @@ export const ContactsManager = () => {
     try {
       await axios.delete(`${API.BASE_URL}admin/contacts/${deleteConfirmId}`, authHeaders);
       setInquiries((prev) => prev.filter((i) => i.id !== deleteConfirmId));
+
       if (selectedInquiry?.id === deleteConfirmId) {
-        setSelectedInquiry(null);
+        const remaining = inquiries.filter((i) => i.id !== deleteConfirmId);
+        setSelectedInquiry(remaining.length > 0 && !isMobileView ? remaining[0] : null);
       }
+
       setDeleteConfirmId(null);
-      setToastMsg("Inquiry removed");
+      setToastMsg("Message deleted successfully");
       setTimeout(() => setToastMsg(""), 3000);
     } catch {
       setToastMsg("Failed to delete inquiry");
@@ -118,103 +320,97 @@ export const ContactsManager = () => {
     }
   };
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "new":
-        return {
-          bg: "rgba(245, 158, 11, 0.15)",
-          color: "#fbbf24",
-          border: "rgba(245, 158, 11, 0.3)",
-          label: "New Lead",
-          icon: "fas fa-bell",
-        };
-      case "in_progress":
-        return {
-          bg: "rgba(59, 130, 246, 0.15)",
-          color: "#60a5fa",
-          border: "rgba(59, 130, 246, 0.3)",
-          label: "In Discussion",
-          icon: "fas fa-spinner fa-spin",
-        };
-      case "contacted":
-        return {
-          bg: "rgba(16, 185, 129, 0.15)",
-          color: "#34d399",
-          border: "rgba(16, 185, 129, 0.3)",
-          label: "Contacted",
-          icon: "fas fa-check-circle",
-        };
-      case "archived":
-        return {
-          bg: "rgba(100, 116, 139, 0.15)",
-          color: "#94a3b8",
-          border: "rgba(100, 116, 139, 0.3)",
-          label: "Archived",
-          icon: "fas fa-archive",
-        };
-      default:
-        return {
-          bg: "rgba(100, 116, 139, 0.15)",
-          color: "#94a3b8",
-          border: "rgba(100, 116, 139, 0.3)",
-          label: status,
-          icon: "fas fa-circle",
-        };
-    }
+  // Copy to clipboard helpers
+  const handleCopyEmail = (email) => {
+    if (!email) return;
+    navigator.clipboard.writeText(email);
+    setCopiedEmail(true);
+    setTimeout(() => setCopiedEmail(false), 2000);
   };
 
-  const newCount = inquiries.filter((i) => i.status === "new").length;
-  const inProgressCount = inquiries.filter((i) => i.status === "in_progress").length;
-  const contactedCount = inquiries.filter((i) => i.status === "contacted").length;
+  const handleCopyPhone = (phone) => {
+    if (!phone) return;
+    navigator.clipboard.writeText(phone);
+    setCopiedPhone(true);
+    setTimeout(() => setCopiedPhone(false), 2000);
+  };
+
+  // Launch email reply with template
+  const handleReplyTemplate = (tpl) => {
+    if (!selectedInquiry) return;
+    const subject = encodeURIComponent(`${tpl.subjectPrefix}${selectedInquiry.subject || "Project Inquiry"}`);
+    const body = encodeURIComponent(tpl.body(selectedInquiry.name, selectedInquiry.subject || "your project inquiry"));
+    window.location.href = `mailto:${selectedInquiry.email}?subject=${subject}&body=${body}`;
+  };
 
   return (
-    <div>
-      {/* Top Action Bar */}
-      <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div style={{ paddingBottom: "30px" }}>
+      {/* ── Top Header & Actions ── */}
+      <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
         <div>
-          <h2 style={{ fontSize: "1.6rem", fontWeight: "800", color: "#ffffff", margin: 0 }}>
-            Client Inquiries & Leads Inbox
-          </h2>
-          <p style={{ color: "#94a3b8", fontSize: "0.9rem", margin: "4px 0 0 0" }}>
-            Review and respond to messages submitted via the Contact Us form and project estimation requests.
+          <div className="d-flex align-items-center gap-2">
+            <h2 style={{ fontSize: "1.55rem", fontWeight: "800", color: "#ffffff", margin: 0 }}>
+              Client Messages & Inquiries
+            </h2>
+            <span
+              style={{
+                background: "rgba(245, 32, 41, 0.15)",
+                color: "var(--pt-primary)",
+                border: "1px solid rgba(245, 32, 41, 0.3)",
+                padding: "3px 10px",
+                borderRadius: "20px",
+                fontSize: "0.75rem",
+                fontWeight: "700",
+              }}
+            >
+              Unified Webmail
+            </span>
+          </div>
+          <p style={{ color: "#94a3b8", fontSize: "0.88rem", margin: "4px 0 0 0" }}>
+            Inbox layout to review, track, and reply to all leads sent from the website contact forms.
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={loadInquiries}
-          style={{
-            background: "rgba(30, 41, 59, 0.8)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            color: "#ffffff",
-            padding: "9px 18px",
-            borderRadius: "10px",
-            fontWeight: "600",
-            fontSize: "0.85rem",
-            cursor: "pointer",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-          }}
-        >
-          <i className="fas fa-sync-alt" />
-          <span>Refresh Inbox</span>
-        </button>
+        <div className="d-flex align-items-center gap-2">
+          <button
+            type="button"
+            onClick={loadInquiries}
+            style={{
+              background: "rgba(30, 41, 59, 0.8)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              color: "#ffffff",
+              padding: "9px 18px",
+              borderRadius: "10px",
+              fontWeight: "600",
+              fontSize: "0.85rem",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              transition: "all 0.2s",
+            }}
+          >
+            <i className={`fas fa-sync-alt ${loading ? "fa-spin" : ""}`} />
+            <span>Refresh Inbox</span>
+          </button>
+        </div>
       </div>
 
+      {/* ── Toast Notification ── */}
       {toastMsg && (
         <div
           style={{
-            background: "rgba(16, 185, 129, 0.15)",
-            border: "1px solid rgba(16, 185, 129, 0.3)",
+            background: "rgba(16, 185, 129, 0.18)",
+            border: "1px solid rgba(16, 185, 129, 0.35)",
             color: "#34d399",
             padding: "10px 16px",
             borderRadius: "10px",
-            marginBottom: "18px",
-            fontSize: "0.85rem",
+            marginBottom: "16px",
+            fontSize: "0.86rem",
             display: "flex",
             alignItems: "center",
             gap: "8px",
+            boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
           }}
         >
           <i className="fas fa-check-circle" />
@@ -222,736 +418,909 @@ export const ContactsManager = () => {
         </div>
       )}
 
-      {/* Metrics Row */}
-      <div className="row g-3 mb-4">
-        <div className="col-12 col-sm-6 col-lg-3">
-          <div
-            style={{
-              background: "rgba(30, 41, 59, 0.5)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: "14px",
-              padding: "18px 20px",
-              display: "flex",
-              alignItems: "center",
-              gap: "16px",
-            }}
-          >
-            <div
-              style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "12px",
-                background: "rgba(245, 32, 41, 0.15)",
-                color: "var(--pt-primary)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "1.2rem",
-              }}
-            >
-              <i className="fas fa-inbox" />
-            </div>
-            <div>
-              <div style={{ color: "#94a3b8", fontSize: "0.82rem", fontWeight: "500" }}>
-                Total Messages
-              </div>
-              <div style={{ color: "#ffffff", fontSize: "1.45rem", fontWeight: "800" }}>
-                {inquiries.length}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-sm-6 col-lg-3">
-          <div
-            style={{
-              background: "rgba(30, 41, 59, 0.5)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: "14px",
-              padding: "18px 20px",
-              display: "flex",
-              alignItems: "center",
-              gap: "16px",
-            }}
-          >
-            <div
-              style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "12px",
-                background: "rgba(245, 158, 11, 0.15)",
-                color: "#fbbf24",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "1.2rem",
-              }}
-            >
-              <i className="fas fa-envelope-open-text" />
-            </div>
-            <div>
-              <div style={{ color: "#94a3b8", fontSize: "0.82rem", fontWeight: "500" }}>
-                New Leads
-              </div>
-              <div style={{ color: "#fbbf24", fontSize: "1.45rem", fontWeight: "800" }}>
-                {newCount}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-sm-6 col-lg-3">
-          <div
-            style={{
-              background: "rgba(30, 41, 59, 0.5)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: "14px",
-              padding: "18px 20px",
-              display: "flex",
-              alignItems: "center",
-              gap: "16px",
-            }}
-          >
-            <div
-              style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "12px",
-                background: "rgba(59, 130, 246, 0.15)",
-                color: "#60a5fa",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "1.2rem",
-              }}
-            >
-              <i className="fas fa-comments" />
-            </div>
-            <div>
-              <div style={{ color: "#94a3b8", fontSize: "0.82rem", fontWeight: "500" }}>
-                In Discussion
-              </div>
-              <div style={{ color: "#60a5fa", fontSize: "1.45rem", fontWeight: "800" }}>
-                {inProgressCount}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-sm-6 col-lg-3">
-          <div
-            style={{
-              background: "rgba(30, 41, 59, 0.5)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: "14px",
-              padding: "18px 20px",
-              display: "flex",
-              alignItems: "center",
-              gap: "16px",
-            }}
-          >
-            <div
-              style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "12px",
-                background: "rgba(16, 185, 129, 0.15)",
-                color: "#34d399",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "1.2rem",
-              }}
-            >
-              <i className="fas fa-check-double" />
-            </div>
-            <div>
-              <div style={{ color: "#94a3b8", fontSize: "0.82rem", fontWeight: "500" }}>
-                Contacted & Closed
-              </div>
-              <div style={{ color: "#34d399", fontSize: "1.45rem", fontWeight: "800" }}>
-                {contactedCount}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filter and Search Bar */}
-      <div
-        style={{
-          background: "rgba(30, 41, 59, 0.4)",
-          border: "1px solid rgba(255, 255, 255, 0.08)",
-          borderRadius: "14px",
-          padding: "14px 18px",
-          marginBottom: "24px",
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "center",
-          gap: "14px",
-        }}
-      >
-        <div style={{ position: "relative", flex: "1 1 260px" }}>
-          <i
-            className="fas fa-search"
-            style={{
-              position: "absolute",
-              left: "14px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              color: "#64748b",
-              fontSize: "0.85rem",
-            }}
-          />
-          <input
-            type="text"
-            placeholder="Search leads by name, email, phone, subject..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "9px 14px 9px 38px",
-              background: "rgba(15, 23, 42, 0.7)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              borderRadius: "10px",
-              color: "#ffffff",
-              fontSize: "0.85rem",
-              outline: "none",
-            }}
-          />
-        </div>
-
-        <div style={{ display: "flex", gap: "8px", overflowX: "auto" }}>
-          {[
-            { id: "all", label: "All Messages" },
-            { id: "new", label: `New (${newCount})` },
-            { id: "in_progress", label: "In Discussion" },
-            { id: "contacted", label: "Contacted" },
-            { id: "archived", label: "Archived" },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setStatusFilter(tab.id)}
-              style={{
-                padding: "7px 14px",
-                borderRadius: "8px",
-                fontSize: "0.8rem",
-                fontWeight: "600",
-                cursor: "pointer",
-                border: "none",
-                background: statusFilter === tab.id ? "var(--pt-primary)" : "rgba(15, 23, 42, 0.8)",
-                color: statusFilter === tab.id ? "#ffffff" : "#94a3b8",
-                transition: "all 0.2s",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Inquiries Table / List */}
-      {loading ? (
-        <div className="text-center py-5" style={{ color: "#94a3b8" }}>
-          <i className="fas fa-spinner fa-spin fa-2x mb-3 d-block" style={{ color: "var(--pt-primary)" }} />
-          Loading messages from database...
-        </div>
-      ) : filteredInquiries.length === 0 ? (
-        <div
-          style={{
-            background: "rgba(30, 41, 59, 0.3)",
-            border: "1px dashed rgba(255, 255, 255, 0.15)",
-            borderRadius: "16px",
-            padding: "50px 20px",
-            textAlign: "center",
-          }}
-        >
-          <i className="fas fa-inbox fa-3x mb-3" style={{ color: "#475569" }} />
-          <h4 style={{ color: "#ffffff", fontWeight: "700" }}>No inquiries found</h4>
-          <p style={{ color: "#94a3b8", fontSize: "0.88rem", maxWidth: "420px", margin: "0 auto" }}>
-            {search
-              ? "No messages match your search filter."
-              : "Submissions from your public Contact Us page will automatically appear here."}
-          </p>
-        </div>
-      ) : (
-        <div
-          style={{
-            background: "rgba(30, 41, 59, 0.45)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-            borderRadius: "16px",
-            overflow: "hidden",
-          }}
-        >
-          <div className="table-responsive">
-            <table
-              className="table table-borderless align-middle mb-0"
-              style={{ color: "#cbd5e1", fontSize: "0.86rem" }}
-            >
-              <thead
+      {/* ── Status Metrics Cards ── */}
+      <div className="row g-2 mb-3">
+        {[
+          {
+            id: "all",
+            label: "All Messages",
+            count: inquiries.length,
+            icon: "fas fa-inbox",
+            color: "var(--pt-primary)",
+            bg: "rgba(245, 32, 41, 0.12)",
+          },
+          {
+            id: "new",
+            label: "New Leads",
+            count: newCount,
+            icon: "fas fa-bell",
+            color: "#fbbf24",
+            bg: "rgba(245, 158, 11, 0.12)",
+          },
+          {
+            id: "in_progress",
+            label: "In Discussion",
+            count: inProgressCount,
+            icon: "fas fa-comments",
+            color: "#60a5fa",
+            bg: "rgba(59, 130, 246, 0.12)",
+          },
+          {
+            id: "contacted",
+            label: "Contacted",
+            count: contactedCount,
+            icon: "fas fa-check-circle",
+            color: "#34d399",
+            bg: "rgba(16, 185, 129, 0.12)",
+          },
+          {
+            id: "archived",
+            label: "Archived",
+            count: archivedCount,
+            icon: "fas fa-archive",
+            color: "#94a3b8",
+            bg: "rgba(100, 116, 139, 0.12)",
+          },
+        ].map((tab) => {
+          const isActive = statusFilter === tab.id;
+          return (
+            <div key={tab.id} className="col">
+              <button
+                type="button"
+                onClick={() => setStatusFilter(tab.id)}
                 style={{
-                  background: "rgba(15, 23, 42, 0.8)",
-                  borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-                  color: "#94a3b8",
-                  fontSize: "0.78rem",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px",
+                  width: "100%",
+                  background: isActive ? "rgba(30, 41, 59, 0.95)" : "rgba(30, 41, 59, 0.4)",
+                  border: isActive
+                    ? `1.5px solid ${tab.color}`
+                    : "1px solid rgba(255, 255, 255, 0.07)",
+                  borderRadius: "12px",
+                  padding: "10px 14px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  textAlign: "left",
                 }}
               >
-                <tr>
-                  <th style={{ padding: "14px 20px" }}>Client</th>
-                  <th style={{ padding: "14px 20px" }}>Subject & Message</th>
-                  <th style={{ padding: "14px 20px" }}>Status</th>
-                  <th style={{ padding: "14px 20px" }}>Date</th>
-                  <th style={{ padding: "14px 20px", textAlign: "right" }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredInquiries.map((inq) => {
-                  const badge = getStatusBadge(inq.status);
-                  const dateStr = inq.createdAt
-                    ? new Date(inq.createdAt).toLocaleDateString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })
-                    : "Recent";
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "8px",
+                      background: tab.bg,
+                      color: tab.color,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    <i className={tab.icon} />
+                  </div>
+                  <div>
+                    <div style={{ color: "#94a3b8", fontSize: "0.74rem", fontWeight: "600", textTransform: "uppercase" }}>
+                      {tab.label}
+                    </div>
+                    <div style={{ color: "#ffffff", fontSize: "1.1rem", fontWeight: "800", lineHeight: 1.2 }}>
+                      {tab.count}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          );
+        })}
+      </div>
 
-                  return (
-                    <tr
-                      key={inq.id}
-                      style={{
-                        borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-                        transition: "background 0.2s",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "rgba(255, 255, 255, 0.02)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "transparent";
-                      }}
-                    >
-                      {/* Client */}
-                      <td style={{ padding: "16px 20px" }}>
-                        <div style={{ fontWeight: "700", color: "#ffffff", fontSize: "0.92rem" }}>
-                          {inq.name}
-                        </div>
-                        <div style={{ color: "#60a5fa", fontSize: "0.8rem" }}>
-                          <i className="fas fa-envelope me-1" />
-                          <a
-                            href={`mailto:${inq.email}`}
-                            style={{ color: "inherit", textDecoration: "none" }}
-                          >
-                            {inq.email}
-                          </a>
-                        </div>
-                        {inq.phone && (
-                          <div style={{ color: "#94a3b8", fontSize: "0.78rem" }}>
-                            <i className="fas fa-phone me-1" />
-                            <a
-                              href={`tel:${inq.phone}`}
-                              style={{ color: "inherit", textDecoration: "none" }}
-                            >
-                              {inq.phone}
-                            </a>
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Subject & Preview */}
-                      <td style={{ padding: "16px 20px", maxWidth: "340px" }}>
-                        <div
-                          style={{
-                            fontWeight: "600",
-                            color: "#e2e8f0",
-                            marginBottom: "3px",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          {inq.subject || "Project Inquiry"}
-                        </div>
-                        <div
-                          style={{
-                            color: "#94a3b8",
-                            fontSize: "0.8rem",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {inq.contents}
-                        </div>
-                      </td>
-
-                      {/* Status */}
-                      <td style={{ padding: "16px 20px" }}>
-                        <span
-                          style={{
-                            background: badge.bg,
-                            border: `1px solid ${badge.border}`,
-                            color: badge.color,
-                            padding: "4px 10px",
-                            borderRadius: "20px",
-                            fontSize: "0.75rem",
-                            fontWeight: "600",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "5px",
-                          }}
-                        >
-                          <i className={badge.icon} style={{ fontSize: "0.7rem" }} />
-                          <span>{badge.label}</span>
-                        </span>
-                      </td>
-
-                      {/* Date */}
-                      <td style={{ padding: "16px 20px", color: "#94a3b8", fontSize: "0.8rem", whiteSpace: "nowrap" }}>
-                        {dateStr}
-                      </td>
-
-                      {/* Actions */}
-                      <td style={{ padding: "16px 20px", textAlign: "right" }}>
-                        <div style={{ display: "inline-flex", gap: "8px" }}>
-                          <button
-                            type="button"
-                            onClick={() => handleOpenDetail(inq)}
-                            style={{
-                              background: "rgba(59, 130, 246, 0.15)",
-                              color: "#60a5fa",
-                              border: "none",
-                              padding: "6px 12px",
-                              borderRadius: "8px",
-                              fontSize: "0.8rem",
-                              fontWeight: "600",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <i className="fas fa-eye me-1" /> View
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setDeleteConfirmId(inq.id)}
-                            style={{
-                              background: "rgba(239, 68, 68, 0.15)",
-                              color: "#f87171",
-                              border: "none",
-                              padding: "6px 10px",
-                              borderRadius: "8px",
-                              fontSize: "0.8rem",
-                              fontWeight: "600",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <i className="fas fa-trash" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* ── Detail Modal ── */}
-      {selectedInquiry && (
+      {/* ── Unified Email Client Container ── */}
+      <div
+        style={{
+          background: "#0f172a",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          borderRadius: "16px",
+          overflow: "hidden",
+          minHeight: "700px",
+          height: isMobileView ? "auto" : "calc(100vh - 280px)",
+          maxHeight: isMobileView ? "none" : "850px",
+          display: "flex",
+          boxShadow: "0 20px 40px rgba(0, 0, 0, 0.4)",
+        }}
+      >
+        {/* ══════════════════════════════════════════════════
+            LEFT COLUMN: INBOX FEED LIST
+           ══════════════════════════════════════════════════ */}
         <div
           style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0, 0, 0, 0.8)",
-            backdropFilter: "blur(6px)",
-            zIndex: 1050,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "20px",
+            width: isMobileView ? "100%" : "400px",
+            minWidth: isMobileView ? "100%" : "360px",
+            maxWidth: isMobileView ? "100%" : "420px",
+            borderRight: isMobileView ? "none" : "1px solid rgba(255, 255, 255, 0.08)",
+            display: isMobileView && selectedInquiry ? "none" : "flex",
+            flexDirection: "column",
+            background: "rgba(15, 23, 42, 0.98)",
           }}
         >
+          {/* Inbox Search & Filter Bar */}
           <div
             style={{
-              background: "#1e293b",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              borderRadius: "20px",
-              width: "100%",
-              maxWidth: "680px",
-              maxHeight: "90vh",
-              display: "flex",
-              flexDirection: "column",
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.6)",
-              overflow: "hidden",
+              padding: "16px",
+              borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+              background: "rgba(30, 41, 59, 0.3)",
             }}
           >
-            {/* Modal Header */}
+            {/* Search Box */}
+            <div style={{ position: "relative", marginBottom: "12px" }}>
+              <i
+                className="fas fa-search"
+                style={{
+                  position: "absolute",
+                  left: "14px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "#64748b",
+                  fontSize: "0.85rem",
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Search sender, email, subject..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "9px 34px 9px 38px",
+                  background: "rgba(30, 41, 59, 0.6)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  borderRadius: "10px",
+                  color: "#ffffff",
+                  fontSize: "0.84rem",
+                  outline: "none",
+                }}
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                  style={{
+                    position: "absolute",
+                    right: "10px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "transparent",
+                    border: "none",
+                    color: "#94a3b8",
+                    cursor: "pointer",
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* List Toolbar / Count & Sort */}
             <div
               style={{
-                padding: "20px 24px",
-                borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                background: "rgba(15, 23, 42, 0.6)",
+                fontSize: "0.76rem",
+                color: "#94a3b8",
               }}
             >
-              <div>
-                <h3 style={{ fontSize: "1.2rem", fontWeight: "700", color: "#ffffff", margin: 0 }}>
-                  Inquiry from {selectedInquiry.name}
-                </h3>
-                <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>
-                  Received on {new Date(selectedInquiry.createdAt || Date.now()).toLocaleString()}
-                </span>
-              </div>
+              <span>
+                <strong>{filteredInquiries.length}</strong> {filteredInquiries.length === 1 ? "message" : "messages"}
+                {statusFilter !== "all" && ` in ${statusFilter.replace("_", " ")}`}
+              </span>
               <button
                 type="button"
-                onClick={() => setSelectedInquiry(null)}
+                onClick={() => setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))}
                 style={{
                   background: "transparent",
                   border: "none",
                   color: "#94a3b8",
-                  fontSize: "1.2rem",
                   cursor: "pointer",
+                  fontSize: "0.76rem",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "4px",
                 }}
               >
-                ✕
+                <i className={`fas fa-sort-amount-${sortOrder === "desc" ? "down" : "up"}`} />
+                <span>{sortOrder === "desc" ? "Newest First" : "Oldest First"}</span>
               </button>
             </div>
+          </div>
 
-            {/* Modal Body */}
-            <div style={{ padding: "24px", overflowY: "auto", flex: 1 }}>
-              {/* Contact info cards */}
-              <div className="row g-2 mb-4">
-                <div className="col-12 col-sm-6">
-                  <div
-                    style={{
-                      background: "rgba(15, 23, 42, 0.6)",
-                      border: "1px solid rgba(255, 255, 255, 0.06)",
-                      borderRadius: "10px",
-                      padding: "12px",
-                    }}
-                  >
-                    <div style={{ fontSize: "0.74rem", color: "#64748b", textTransform: "uppercase" }}>
-                      Email Address
-                    </div>
-                    <a
-                      href={`mailto:${selectedInquiry.email}`}
-                      style={{ color: "#60a5fa", fontWeight: "600", fontSize: "0.88rem", textDecoration: "none" }}
+          {/* Messages Scrollable List */}
+          <div
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              position: "relative",
+            }}
+          >
+            {loading ? (
+              <div className="text-center py-5" style={{ color: "#94a3b8" }}>
+                <i className="fas fa-spinner fa-spin fa-2x mb-3 d-block" style={{ color: "var(--pt-primary)" }} />
+                <span>Loading mailbox...</span>
+              </div>
+            ) : filteredInquiries.length === 0 ? (
+              <div style={{ padding: "40px 20px", textAlign: "center", color: "#64748b" }}>
+                <i className="fas fa-inbox fa-3x mb-3" style={{ opacity: 0.5 }} />
+                <h5 style={{ color: "#94a3b8", fontSize: "0.95rem", fontWeight: "600" }}>No messages found</h5>
+                <p style={{ fontSize: "0.8rem", margin: "6px 0 0 0" }}>
+                  {search ? "No inquiries match your search." : "No inquiries in this folder."}
+                </p>
+              </div>
+            ) : (
+              <div>
+                {filteredInquiries.map((inq) => {
+                  const isSelected = selectedInquiry?.id === inq.id;
+                  const isNew = inq.status === "new";
+                  const badge = STATUS_CONFIG[inq.status] || STATUS_CONFIG.new;
+
+                  return (
+                    <div
+                      key={inq.id}
+                      onClick={() => {
+                        setSelectedInquiry(inq);
+                        setNotesUpdate(inq.notes || "");
+                      }}
+                      style={{
+                        padding: "14px 16px",
+                        borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                        background: isSelected
+                          ? "rgba(59, 130, 246, 0.12)"
+                          : isNew
+                          ? "rgba(245, 158, 11, 0.03)"
+                          : "transparent",
+                        borderLeft: isSelected
+                          ? "4px solid var(--pt-primary)"
+                          : isNew
+                          ? "4px solid #fbbf24"
+                          : "4px solid transparent",
+                        cursor: "pointer",
+                        transition: "all 0.15s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.background = isNew
+                            ? "rgba(245, 158, 11, 0.03)"
+                            : "transparent";
+                        }
+                      }}
                     >
-                      <i className="fas fa-paper-plane me-1" /> {selectedInquiry.email}
-                    </a>
-                  </div>
-                </div>
+                      <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                        {/* Avatar */}
+                        <div
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            borderRadius: "10px",
+                            background: getAvatarBg(inq.name),
+                            color: "#ffffff",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontWeight: "700",
+                            fontSize: "0.85rem",
+                            flexShrink: 0,
+                            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
+                          }}
+                        >
+                          {getInitials(inq.name)}
+                        </div>
 
-                <div className="col-12 col-sm-6">
-                  <div
-                    style={{
-                      background: "rgba(15, 23, 42, 0.6)",
-                      border: "1px solid rgba(255, 255, 255, 0.06)",
-                      borderRadius: "10px",
-                      padding: "12px",
-                    }}
-                  >
-                    <div style={{ fontSize: "0.74rem", color: "#64748b", textTransform: "uppercase" }}>
-                      Phone / Mobile
+                        {/* Content Header & Snippet */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          {/* Sender name & Date */}
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              marginBottom: "3px",
+                            }}
+                          >
+                            <span
+                              style={{
+                                color: isNew ? "#ffffff" : "#cbd5e1",
+                                fontWeight: isNew ? "700" : "600",
+                                fontSize: "0.88rem",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {inq.name}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: "0.72rem",
+                                color: isNew ? "#fbbf24" : "#64748b",
+                                fontWeight: isNew ? "600" : "500",
+                                flexShrink: 0,
+                                marginLeft: "8px",
+                              }}
+                            >
+                              {formatShortDate(inq.createdAt)}
+                            </span>
+                          </div>
+
+                          {/* Subject */}
+                          <div
+                            style={{
+                              color: isSelected ? "#ffffff" : "#94a3b8",
+                              fontWeight: isNew ? "600" : "500",
+                              fontSize: "0.82rem",
+                              marginBottom: "4px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {inq.subject || "No Subject"}
+                          </div>
+
+                          {/* Message Excerpt */}
+                          <div
+                            style={{
+                              color: "#64748b",
+                              fontSize: "0.78rem",
+                              lineHeight: "1.35",
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            {inq.contents}
+                          </div>
+
+                          {/* Status Chip & Indicators */}
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <span
+                              style={{
+                                background: badge.bg,
+                                color: badge.color,
+                                border: `1px solid ${badge.border}`,
+                                padding: "2px 8px",
+                                borderRadius: "12px",
+                                fontSize: "0.7rem",
+                                fontWeight: "600",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                              }}
+                            >
+                              <i className={badge.icon} style={{ fontSize: "0.65rem" }} />
+                              <span>{badge.label}</span>
+                            </span>
+
+                            {inq.phone && (
+                              <span
+                                title={`Phone: ${inq.phone}`}
+                                style={{ color: "#64748b", fontSize: "0.72rem" }}
+                              >
+                                <i className="fas fa-phone me-1" />
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    {selectedInquiry.phone ? (
-                      <a
-                        href={`tel:${selectedInquiry.phone}`}
-                        style={{ color: "#34d399", fontWeight: "600", fontSize: "0.88rem", textDecoration: "none" }}
-                      >
-                        <i className="fas fa-phone-alt me-1" /> {selectedInquiry.phone}
-                      </a>
-                    ) : (
-                      <span style={{ color: "#94a3b8", fontSize: "0.85rem" }}>Not provided</span>
-                    )}
-                  </div>
-                </div>
+                  );
+                })}
               </div>
+            )}
+          </div>
+        </div>
 
-              {/* Subject */}
-              <div style={{ marginBottom: "16px" }}>
-                <div style={{ fontSize: "0.76rem", color: "#94a3b8", fontWeight: "600", textTransform: "uppercase", marginBottom: "4px" }}>
-                  Subject
-                </div>
-                <div
-                  style={{
-                    background: "rgba(15, 23, 42, 0.4)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    borderRadius: "8px",
-                    padding: "10px 14px",
-                    color: "#ffffff",
-                    fontWeight: "600",
-                    fontSize: "0.92rem",
-                  }}
-                >
-                  {selectedInquiry.subject || "No subject"}
-                </div>
-              </div>
-
-              {/* Message Content */}
-              <div style={{ marginBottom: "20px" }}>
-                <div style={{ fontSize: "0.76rem", color: "#94a3b8", fontWeight: "600", textTransform: "uppercase", marginBottom: "4px" }}>
-                  Message Content
-                </div>
-                <div
-                  style={{
-                    background: "rgba(15, 23, 42, 0.7)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    borderRadius: "10px",
-                    padding: "16px",
-                    color: "#e2e8f0",
-                    fontSize: "0.88rem",
-                    lineHeight: "1.6",
-                    whiteSpace: "pre-wrap",
-                  }}
-                >
-                  {selectedInquiry.contents}
-                </div>
-              </div>
-
-              {/* Status Selector & Internal Notes */}
+        {/* ══════════════════════════════════════════════════
+            RIGHT COLUMN: READING PANE & LETTERHEAD
+           ══════════════════════════════════════════════════ */}
+        <div
+          style={{
+            flex: 1,
+            display: isMobileView && !selectedInquiry ? "none" : "flex",
+            flexDirection: "column",
+            background: "#0b0f19",
+            overflow: "hidden",
+          }}
+        >
+          {selectedInquiry ? (
+            <div style={{ display: "flex", flexDirection: "column", height: "100%", overflowY: "auto" }}>
+              {/* ── Email Action Bar ── */}
               <div
                 style={{
-                  background: "rgba(15, 23, 42, 0.5)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                  borderRadius: "12px",
-                  padding: "16px",
+                  padding: "14px 20px",
+                  background: "rgba(15, 23, 42, 0.8)",
+                  borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "10px",
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 10,
                 }}
               >
-                <div className="row g-3">
-                  <div className="col-12 col-md-5">
-                    <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#cbd5e1", marginBottom: "6px", display: "block" }}>
-                      Update Status
-                    </label>
-                    <select
-                      value={statusUpdate}
-                      onChange={(e) => setStatusUpdate(e.target.value)}
+                {/* Mobile Back Button & Navigation */}
+                <div className="d-flex align-items-center gap-2">
+                  {isMobileView && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedInquiry(null)}
                       style={{
-                        width: "100%",
-                        padding: "8px 12px",
-                        background: "rgba(15, 23, 42, 0.8)",
+                        background: "rgba(30, 41, 59, 0.8)",
                         border: "1px solid rgba(255, 255, 255, 0.1)",
+                        color: "#cbd5e1",
+                        padding: "6px 12px",
                         borderRadius: "8px",
-                        color: "#ffffff",
-                        fontSize: "0.85rem",
+                        fontSize: "0.82rem",
+                        cursor: "pointer",
                       }}
                     >
-                      <option value="new">New Lead</option>
-                      <option value="in_progress">In Discussion</option>
-                      <option value="contacted">Contacted / Closed</option>
-                      <option value="archived">Archived</option>
-                    </select>
-                  </div>
+                      <i className="fas fa-arrow-left me-1" /> Back
+                    </button>
+                  )}
 
-                  <div className="col-12 col-md-7">
-                    <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#cbd5e1", marginBottom: "6px", display: "block" }}>
-                      Internal Staff Notes
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Sent proposal via email on Thursday..."
-                      value={notesUpdate}
-                      onChange={(e) => setNotesUpdate(e.target.value)}
-                      style={{
-                        width: "100%",
-                        padding: "8px 12px",
-                        background: "rgba(15, 23, 42, 0.8)",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                        borderRadius: "8px",
-                        color: "#ffffff",
-                        fontSize: "0.85rem",
-                      }}
-                    />
+                  {/* Status Dropdown Picker */}
+                  <div className="d-flex align-items-center gap-1">
+                    <span style={{ fontSize: "0.75rem", color: "#64748b", marginRight: "4px" }}>Status:</span>
+                    {Object.keys(STATUS_CONFIG).map((statusKey) => {
+                      const cfg = STATUS_CONFIG[statusKey];
+                      const isCurrent = selectedInquiry.status === statusKey;
+                      return (
+                        <button
+                          key={statusKey}
+                          type="button"
+                          onClick={() => handleUpdateStatus(selectedInquiry.id, statusKey)}
+                          style={{
+                            background: isCurrent ? cfg.bg : "rgba(30, 41, 59, 0.6)",
+                            border: isCurrent
+                              ? `1.5px solid ${cfg.border}`
+                              : "1px solid rgba(255, 255, 255, 0.06)",
+                            color: isCurrent ? cfg.color : "#94a3b8",
+                            padding: "4px 10px",
+                            borderRadius: "6px",
+                            fontSize: "0.75rem",
+                            fontWeight: isCurrent ? "700" : "500",
+                            cursor: "pointer",
+                            transition: "all 0.15s",
+                          }}
+                        >
+                          {cfg.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
-                <div style={{ marginTop: "12px", textAlign: "right" }}>
-                  <button
-                    type="button"
-                    disabled={savingNote}
-                    onClick={() => handleUpdateStatus(selectedInquiry.id, statusUpdate, notesUpdate)}
+                {/* Email Actions: Reply, Delete, Copy, Print */}
+                <div className="d-flex align-items-center gap-2">
+                  <a
+                    href={`mailto:${selectedInquiry.email}?subject=Re: ${encodeURIComponent(
+                      selectedInquiry.subject || "Your Inquiry with Paraksh Technologies"
+                    )}`}
                     style={{
-                      background: "var(--pt-primary)",
-                      color: "#fff",
-                      border: "none",
-                      padding: "8px 18px",
+                      background: "linear-gradient(135deg, var(--pt-primary) 0%, #b8141b 100%)",
+                      color: "#ffffff",
+                      textDecoration: "none",
+                      padding: "6px 14px",
                       borderRadius: "8px",
-                      fontSize: "0.82rem",
+                      fontSize: "0.8rem",
                       fontWeight: "700",
-                      cursor: savingNote ? "not-allowed" : "pointer",
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "6px",
                     }}
                   >
-                    {savingNote && <i className="fas fa-spinner fa-spin" />}
-                    <span>Save Status & Notes</span>
+                    <i className="fas fa-reply" />
+                    <span>Reply</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCopyEmail(selectedInquiry.email)}
+                    title="Copy sender email address"
+                    style={{
+                      background: "rgba(30, 41, 59, 0.8)",
+                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      color: copiedEmail ? "#34d399" : "#cbd5e1",
+                      padding: "6px 12px",
+                      borderRadius: "8px",
+                      fontSize: "0.8rem",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <i className={copiedEmail ? "fas fa-check me-1" : "fas fa-copy me-1"} />
+                    <span>{copiedEmail ? "Copied" : "Copy Email"}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    title="Print message letterhead"
+                    style={{
+                      background: "rgba(30, 41, 59, 0.8)",
+                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      color: "#cbd5e1",
+                      padding: "6px 10px",
+                      borderRadius: "8px",
+                      fontSize: "0.8rem",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <i className="fas fa-print" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDeleteConfirmId(selectedInquiry.id)}
+                    title="Delete message"
+                    style={{
+                      background: "rgba(239, 68, 68, 0.15)",
+                      border: "1px solid rgba(239, 68, 68, 0.3)",
+                      color: "#f87171",
+                      padding: "6px 10px",
+                      borderRadius: "8px",
+                      fontSize: "0.8rem",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <i className="fas fa-trash-alt" />
                   </button>
                 </div>
               </div>
-            </div>
 
-            {/* Modal Footer */}
+              {/* ── Letterhead Header ── */}
+              <div
+                style={{
+                  padding: "24px",
+                  borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                  background: "rgba(15, 23, 42, 0.4)",
+                }}
+              >
+                {/* Subject Line */}
+                <h3
+                  style={{
+                    color: "#ffffff",
+                    fontSize: "1.35rem",
+                    fontWeight: "800",
+                    margin: "0 0 16px 0",
+                    lineHeight: "1.3",
+                  }}
+                >
+                  {selectedInquiry.subject || "Project Inquiry"}
+                </h3>
+
+                {/* Sender Banner */}
+                <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+                  <div
+                    style={{
+                      width: "48px",
+                      height: "48px",
+                      borderRadius: "14px",
+                      background: getAvatarBg(selectedInquiry.name),
+                      color: "#ffffff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "1.1rem",
+                      fontWeight: "700",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {getInitials(selectedInquiry.name)}
+                  </div>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                      <span style={{ color: "#ffffff", fontWeight: "700", fontSize: "1.05rem" }}>
+                        {selectedInquiry.name}
+                      </span>
+                      <span
+                        style={{
+                          background: STATUS_CONFIG[selectedInquiry.status]?.bg || "rgba(245, 158, 11, 0.15)",
+                          color: STATUS_CONFIG[selectedInquiry.status]?.color || "#fbbf24",
+                          border: `1px solid ${STATUS_CONFIG[selectedInquiry.status]?.border || "transparent"}`,
+                          padding: "2px 8px",
+                          borderRadius: "12px",
+                          fontSize: "0.72rem",
+                          fontWeight: "600",
+                        }}
+                      >
+                        {STATUS_CONFIG[selectedInquiry.status]?.label || selectedInquiry.status}
+                      </span>
+                    </div>
+
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", fontSize: "0.82rem", color: "#94a3b8" }}>
+                      {/* Email */}
+                      <div>
+                        <span style={{ color: "#64748b" }}>From: </span>
+                        <a
+                          href={`mailto:${selectedInquiry.email}`}
+                          style={{ color: "#60a5fa", textDecoration: "none", fontWeight: "600" }}
+                        >
+                          {selectedInquiry.email}
+                        </a>
+                      </div>
+
+                      {/* Phone */}
+                      {selectedInquiry.phone && (
+                        <div>
+                          <span style={{ color: "#64748b" }}>Phone: </span>
+                          <a
+                            href={`tel:${selectedInquiry.phone}`}
+                            style={{ color: "#34d399", textDecoration: "none", fontWeight: "600" }}
+                          >
+                            {selectedInquiry.phone}
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyPhone(selectedInquiry.phone)}
+                            style={{
+                              background: "transparent",
+                              border: "none",
+                              color: copiedPhone ? "#34d399" : "#64748b",
+                              cursor: "pointer",
+                              padding: "0 4px",
+                              fontSize: "0.75rem",
+                            }}
+                            title="Copy phone"
+                          >
+                            <i className={copiedPhone ? "fas fa-check" : "fas fa-copy"} />
+                          </button>
+                          <a
+                            href={`https://wa.me/${selectedInquiry.phone.replace(/[^0-9]/g, "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              background: "rgba(16, 185, 129, 0.15)",
+                              color: "#34d399",
+                              border: "1px solid rgba(16, 185, 129, 0.3)",
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                              textDecoration: "none",
+                              fontSize: "0.72rem",
+                              fontWeight: "600",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "3px",
+                              marginLeft: "6px",
+                            }}
+                            title="Chat on WhatsApp"
+                          >
+                            <i className="fab fa-whatsapp" />
+                            <span>WhatsApp</span>
+                          </a>
+                        </div>
+                      )}
+
+                      {/* Recipient */}
+                      <div>
+                        <span style={{ color: "#64748b" }}>To: </span>
+                        <span style={{ color: "#cbd5e1" }}>Paraksh Technologies Admin &lt;support@parakshtech.com&gt;</span>
+                      </div>
+                    </div>
+
+                    {/* Date Received */}
+                    <div style={{ marginTop: "6px", fontSize: "0.76rem", color: "#64748b" }}>
+                      <i className="far fa-clock me-1" />
+                      <span>{formatFullDate(selectedInquiry.createdAt)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Letter Body Container ── */}
+              <div style={{ padding: "28px 24px", flex: 1 }}>
+                <div
+                  style={{
+                    background: "rgba(15, 23, 42, 0.8)",
+                    border: "1px solid rgba(255, 255, 255, 0.06)",
+                    borderRadius: "14px",
+                    padding: "24px",
+                    color: "#f1f5f9",
+                    fontSize: "0.94rem",
+                    lineHeight: "1.7",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                    boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.2)",
+                  }}
+                >
+                  {selectedInquiry.contents}
+                </div>
+
+                {/* ── Fast Reply Templates ── */}
+                <div style={{ marginTop: "24px" }}>
+                  <div
+                    style={{
+                      fontSize: "0.78rem",
+                      fontWeight: "700",
+                      color: "#94a3b8",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      marginBottom: "10px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <i className="fas fa-bolt" style={{ color: "var(--pt-primary)" }} />
+                    <span>Quick Email Templates (One-Click Reply)</span>
+                  </div>
+
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+                    {REPLY_TEMPLATES.map((tpl) => (
+                      <button
+                        key={tpl.id}
+                        type="button"
+                        onClick={() => handleReplyTemplate(tpl)}
+                        style={{
+                          background: "rgba(30, 41, 59, 0.7)",
+                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                          color: "#cbd5e1",
+                          padding: "8px 14px",
+                          borderRadius: "8px",
+                          fontSize: "0.8rem",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          transition: "all 0.15s",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = "rgba(59, 130, 246, 0.15)";
+                          e.currentTarget.style.color = "#60a5fa";
+                          e.currentTarget.style.borderColor = "rgba(59, 130, 246, 0.3)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "rgba(30, 41, 59, 0.7)";
+                          e.currentTarget.style.color = "#cbd5e1";
+                          e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
+                        }}
+                      >
+                        <i className="fas fa-envelope-open-text" style={{ fontSize: "0.75rem" }} />
+                        <span>{tpl.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ── Internal Staff Notes Section ── */}
+                <div
+                  style={{
+                    marginTop: "24px",
+                    background: "rgba(15, 23, 42, 0.6)",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    borderRadius: "14px",
+                    padding: "18px 20px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "0.82rem",
+                        fontWeight: "700",
+                        color: "#cbd5e1",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <i className="fas fa-sticky-note" style={{ color: "#fbbf24" }} />
+                      <span>Internal CRM Notes (Staff Only)</span>
+                    </div>
+                    <span style={{ fontSize: "0.74rem", color: "#64748b" }}>
+                      Private notes regarding proposals, phone calls, or quotes
+                    </span>
+                  </div>
+
+                  <textarea
+                    rows={3}
+                    placeholder="e.g. Called client on Wednesday. Sent initial estimate PDF via email. Awaiting approval..."
+                    value={notesUpdate}
+                    onChange={(e) => setNotesUpdate(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 14px",
+                      background: "rgba(30, 41, 59, 0.5)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      borderRadius: "10px",
+                      color: "#ffffff",
+                      fontSize: "0.85rem",
+                      outline: "none",
+                      resize: "vertical",
+                    }}
+                  />
+
+                  <div style={{ marginTop: "10px", textAlign: "right" }}>
+                    <button
+                      type="button"
+                      disabled={savingNote}
+                      onClick={handleSaveNotes}
+                      style={{
+                        background: "var(--pt-primary)",
+                        color: "#ffffff",
+                        border: "none",
+                        padding: "7px 18px",
+                        borderRadius: "8px",
+                        fontSize: "0.82rem",
+                        fontWeight: "700",
+                        cursor: savingNote ? "not-allowed" : "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      {savingNote && <i className="fas fa-spinner fa-spin" />}
+                      <span>Save Notes</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Empty Reader State */
             <div
               style={{
-                padding: "16px 24px",
-                borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                height: "100%",
                 display: "flex",
-                justifyContent: "space-between",
+                flexDirection: "column",
                 alignItems: "center",
-                background: "rgba(15, 23, 42, 0.6)",
+                justifyContent: "center",
+                padding: "40px",
+                textAlign: "center",
+                color: "#64748b",
               }}
             >
-              <a
-                href={`mailto:${selectedInquiry.email}?subject=Re: ${encodeURIComponent(
-                  selectedInquiry.subject || "Your inquiry with Paraksh Technologies"
-                )}`}
+              <div
                 style={{
-                  background: "linear-gradient(135deg, var(--pt-primary) 0%, #b8141b 100%)",
-                  color: "#ffffff",
-                  textDecoration: "none",
-                  padding: "9px 20px",
-                  borderRadius: "10px",
-                  fontWeight: "700",
-                  fontSize: "0.85rem",
-                  display: "inline-flex",
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "20px",
+                  background: "rgba(30, 41, 59, 0.5)",
+                  color: "#475569",
+                  display: "flex",
                   alignItems: "center",
-                  gap: "8px",
+                  justifyContent: "center",
+                  fontSize: "2.4rem",
+                  marginBottom: "18px",
                 }}
               >
-                <i className="fas fa-reply" />
-                <span>Reply via Email</span>
-              </a>
-
-              <button
-                type="button"
-                onClick={() => setSelectedInquiry(null)}
-                style={{
-                  background: "rgba(15, 23, 42, 0.8)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                  color: "#94a3b8",
-                  padding: "9px 18px",
-                  borderRadius: "10px",
-                  fontSize: "0.85rem",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                }}
-              >
-                Close
-              </button>
+                <i className="fas fa-envelope-open-text" />
+              </div>
+              <h4 style={{ color: "#ffffff", fontWeight: "700", fontSize: "1.2rem", marginBottom: "8px" }}>
+                Select a message to read
+              </h4>
+              <p style={{ maxWidth: "380px", fontSize: "0.88rem", margin: "0 auto", lineHeight: "1.5" }}>
+                Choose an inquiry from the inbox on the left to inspect customer details, reply directly, update status, and manage notes.
+              </p>
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* ── Delete Confirmation Modal ── */}
       {deleteConfirmId && (
@@ -980,6 +1349,7 @@ export const ContactsManager = () => {
               maxWidth: "420px",
               width: "100%",
               textAlign: "center",
+              boxShadow: "0 25px 50px rgba(0, 0, 0, 0.6)",
             }}
           >
             <div
@@ -999,10 +1369,10 @@ export const ContactsManager = () => {
               <i className="fas fa-trash-alt" />
             </div>
             <h4 style={{ color: "#ffffff", fontWeight: "700", marginBottom: "8px" }}>
-              Delete Inquiry?
+              Delete Inquiry Message?
             </h4>
             <p style={{ color: "#94a3b8", fontSize: "0.88rem", marginBottom: "20px" }}>
-              Are you sure you want to permanently delete this message record?
+              Are you sure you want to permanently delete this client inquiry? This action cannot be undone.
             </p>
             <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
               <button
@@ -1044,4 +1414,5 @@ export const ContactsManager = () => {
     </div>
   );
 };
+
 export default ContactsManager;
