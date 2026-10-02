@@ -78,7 +78,7 @@ export const AdminLogin = () => {
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: "8px",
+              gap: "4px",
               textDecoration: "none",
               marginBottom: "16px",
             }}
@@ -94,7 +94,7 @@ export const AdminLogin = () => {
               }}
             />
             <span style={{ fontSize: "1.45rem", fontWeight: "800", color: "#ffffff" }}>
-              <span style={{ color: "var(--pt-primary)" }}>ARAKSH</span>TECH
+              <span style={{ color: "var(--pt-primary)" }}>PARAKSH</span>TECH
             </span>
           </Link>
           <div

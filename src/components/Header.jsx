@@ -98,28 +98,28 @@ export const Header = () => {
       >
         <div className="container">
           <nav className="navbar navbar-expand-lg">
-            {/* Brand Logo: Logo Image functions as stylized 'P', followed by ARAKSHTECH */}
+            {/* Brand Logo */}
             <Link
               className="navbar-brand pt-brand-logo"
               to="/"
               onClick={() => setIsMenuOpen(false)}
             >
-            <img
-              src={logo}
-              alt="ParakshTech Logo"
-              style={{
-                width: "44px",
-                height: "44px",
-                objectFit: "contain",
-                marginRight: "4px",
-                filter: "drop-shadow(0 2px 8px rgba(245, 32, 41, 0.25))",
-                flexShrink: 0,
-              }}
-            />
-            <span style={{ fontWeight: "800", letterSpacing: "-0.5px", whiteSpace: "nowrap" }}>
-              <span style={{ color: "var(--pt-primary)" }}>ARAKSH</span>TECH
-            </span>
-          </Link>
+              <img
+                src={logo}
+                alt="ParakshTech Logo"
+                style={{
+                  width: "42px",
+                  height: "42px",
+                  objectFit: "contain",
+                  marginRight: "0px",
+                  filter: "drop-shadow(0 2px 6px rgba(245, 32, 41, 0.2))",
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontWeight: "800", letterSpacing: "-0.4px", whiteSpace: "nowrap" }}>
+                <span style={{ color: "var(--pt-primary)" }}>PARAKSH</span>TECH
+              </span>
+            </Link>
 
           {/* Mobile Toggler */}
           <button

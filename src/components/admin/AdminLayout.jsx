@@ -232,7 +232,7 @@ export const AdminLayout = () => {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "10px",
+              gap: "6px",
               textDecoration: "none",
               whiteSpace: "nowrap",
               overflow: "hidden",
@@ -251,7 +251,7 @@ export const AdminLayout = () => {
             {sidebarOpen && (
               <div style={{ whiteSpace: "nowrap", overflow: "hidden" }}>
                 <div style={{ fontWeight: "800", fontSize: "1.1rem", color: "#ffffff", lineHeight: 1, whiteSpace: "nowrap" }}>
-                  <span style={{ color: "var(--pt-primary)" }}>ARAKSH</span>TECH
+                  <span style={{ color: "var(--pt-primary)" }}>PARAKSH</span>TECH
                 </div>
                 <div
                   style={{

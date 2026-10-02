@@ -379,14 +379,14 @@ header#site-header .navbar {
 .navbar-brand.pt-brand-logo {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 8px !important;
+  gap: 4px !important;
   margin: 0 !important;
   padding: 0 !important;
   flex-shrink: 0 !important;
   text-decoration: none !important;
   font-size: 1.35rem !important;
   font-weight: 800 !important;
-  letter-spacing: -0.5px !important;
+  letter-spacing: -0.4px !important;
   color: #0f172a !important;
   line-height: 1 !important;
   z-index: 2;
@@ -517,7 +517,7 @@ header#site-header .navbar {
 
   header#site-header .navbar-brand.pt-brand-logo {
     font-size: 1.15rem !important;
-    gap: 6px !important;
+    gap: 3px !important;
   }
 
   header#site-header .navbar-brand.pt-brand-logo img {
@@ -2150,6 +2150,7 @@ p.lead {
 
   header#site-header .navbar-brand.pt-brand-logo {
     font-size: 1.08rem !important;
+    gap: 3px !important;
   }
 
   header#site-header .navbar-brand.pt-brand-logo img {
@@ -2245,6 +2246,7 @@ p.lead {
 @media (max-width: 380px) {
   header#site-header .navbar-brand.pt-brand-logo {
     font-size: 0.98rem !important;
+    gap: 2px !important;
   }
 
   header#site-header .navbar-brand.pt-brand-logo img {
@@ -2318,6 +2320,7 @@ p.lead {
 
   .navbar-brand.pt-brand-logo {
     font-size: 1.45rem !important;
+    gap: 4px !important;
   }
 
   .navbar-brand.pt-brand-logo img {
@@ -2453,6 +2456,7 @@ p.lead {
 
   .navbar-brand.pt-brand-logo {
     font-size: 1.55rem !important;
+    gap: 5px !important;
   }
 
   .navbar-brand.pt-brand-logo img {
@@ -2600,6 +2604,7 @@ p.lead {
 
   .navbar-brand.pt-brand-logo {
     font-size: 1.75rem !important;
+    gap: 6px !important;
   }
 
   .navbar-brand.pt-brand-logo img {
