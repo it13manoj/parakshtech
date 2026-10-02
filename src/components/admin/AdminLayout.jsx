@@ -101,7 +101,31 @@ class AdminErrorBoundary extends React.Component {
 export const AdminLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Persistent manual sidebar state: ONLY toggled by explicit manual user clicks
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    try {
+      const saved = localStorage.getItem("pt_admin_sidebar_open");
+      if (saved !== null) {
+        return saved === "true";
+      }
+    } catch {
+      // fallback
+    }
+    return true;
+  });
+
+  // Manual event handler to toggle sidebar state
+  const handleToggleSidebar = () => {
+    setSidebarOpen((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("pt_admin_sidebar_open", String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
 
   let user = { name: "Administrator" };
   try {
@@ -241,14 +265,21 @@ export const AdminLayout = () => {
           {sidebarOpen && (
             <button
               type="button"
-              onClick={() => setSidebarOpen(false)}
+              onClick={handleToggleSidebar}
               style={{
-                background: "none",
-                border: "none",
-                color: "#64748b",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                color: "#94a3b8",
+                width: "28px",
+                height: "28px",
+                borderRadius: "8px",
                 cursor: "pointer",
-                padding: "4px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.2s ease",
               }}
+              title="Collapse sidebar (Manual toggle)"
               aria-label="Collapse sidebar"
             >
               <i className="fas fa-angle-left" />
@@ -262,15 +293,21 @@ export const AdminLayout = () => {
             <div className="text-center mb-3">
               <button
                 type="button"
-                onClick={() => setSidebarOpen(true)}
+                onClick={handleToggleSidebar}
                 style={{
-                  background: "rgba(255,255,255,0.06)",
-                  border: "none",
+                  background: "rgba(255, 255, 255, 0.08)",
+                  border: "1px solid rgba(255, 255, 255, 0.12)",
                   color: "#cbd5e1",
                   borderRadius: "8px",
-                  padding: "8px",
+                  width: "36px",
+                  height: "36px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   cursor: "pointer",
+                  transition: "all 0.2s ease",
                 }}
+                title="Expand sidebar (Manual toggle)"
                 aria-label="Expand sidebar"
               >
                 <i className="fas fa-angle-right" />
@@ -420,6 +457,29 @@ export const AdminLayout = () => {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+            {/* Manual Toggle Button */}
+            <button
+              type="button"
+              onClick={handleToggleSidebar}
+              style={{
+                background: "rgba(255, 255, 255, 0.06)",
+                border: "1px solid rgba(255, 255, 255, 0.12)",
+                color: "#cbd5e1",
+                width: "38px",
+                height: "38px",
+                borderRadius: "10px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+              title={sidebarOpen ? "Collapse sidebar (Manual toggle)" : "Expand sidebar (Manual toggle)"}
+              aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            >
+              <i className={`fas ${sidebarOpen ? "fa-outdent" : "fa-indent"}`} style={{ fontSize: "1rem" }} />
+            </button>
+
             <div style={{ fontSize: "1.05rem", fontWeight: "700", color: "#ffffff" }}>
               ParakshTech Content Management
             </div>
