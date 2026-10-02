@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
 import "../../assets/css/admin-responsive.css";
@@ -118,10 +118,41 @@ export const AdminLayout = () => {
   // Mobile off-canvas drawer state (< 992px)
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
-  // Automatically close mobile drawer when navigating to a new route
+  // References for content viewport and sidebar scrolling containers
+  const contentRef = useRef(null);
+  const sidebarRef = useRef(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Automatically reset all scrollers to top on route change ("auto all scroller on top")
   useEffect(() => {
     setMobileDrawerOpen(false);
+    if (contentRef.current) {
+      contentRef.current.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+    }
   }, [location.pathname]);
+
+  // Monitor content scroll position for floating scroll-to-top button
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const handleScroll = () => {
+      setShowScrollTop(el.scrollTop > 220);
+    };
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleScrollToTop = () => {
+    if (contentRef.current) {
+      contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   // Manual event handler to toggle sidebar state across all screen devices
   const handleToggleSidebar = () => {
@@ -211,6 +242,7 @@ export const AdminLayout = () => {
 
       {/* ── Sidebar ── */}
       <aside
+        ref={sidebarRef}
         className={`pt-admin-sidebar ${sidebarOpen ? "open" : "collapsed"} ${
           mobileDrawerOpen ? "mobile-open" : ""
         }`}
@@ -531,6 +563,8 @@ export const AdminLayout = () => {
 
             <div
               className="pt-admin-topbar-title"
+              onClick={handleScrollToTop}
+              title="Click to scroll to top"
               style={{
                 fontSize: "1.05rem",
                 fontWeight: "700",
@@ -538,6 +572,7 @@ export const AdminLayout = () => {
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
+                cursor: "pointer",
               }}
             >
               ParakshTech Content Management
@@ -603,11 +638,22 @@ export const AdminLayout = () => {
         </header>
 
         {/* Dynamic Nested View */}
-        <main className="pt-admin-content-view">
+        <main className="pt-admin-content-view" ref={contentRef}>
           <AdminErrorBoundary>
             <Outlet />
           </AdminErrorBoundary>
         </main>
+
+        {/* Floating Scroll-to-Top Action Button for Admin Viewport */}
+        <button
+          type="button"
+          className={`pt-admin-scroll-top-btn ${showScrollTop ? "visible" : ""}`}
+          onClick={handleScrollToTop}
+          title="Scroll to Top"
+          aria-label="Scroll to Top"
+        >
+          <i className="fas fa-chevron-up" />
+        </button>
       </div>
     </div>
   );
