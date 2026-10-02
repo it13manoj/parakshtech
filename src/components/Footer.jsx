@@ -77,20 +77,20 @@ export const Footer = () => {
               <Link
                 to="/"
                 className="pt-brand-logo mb-3 d-inline-flex align-items-center"
-                style={{ color: "#ffffff", textDecoration: "none", gap: "4px" }}
+                style={{ color: "#ffffff", textDecoration: "none", gap: 0 }}
               >
                 <img
                   src={logo}
                   alt="ParakshTech Logo"
                   style={{
-                    width: "44px",
-                    height: "auto",
-                    marginRight: "0px",
+                    width: "auto",
+                    height: "40px",
+                    marginRight: "-2px",
                     filter: "drop-shadow(0 2px 8px rgba(245, 32, 41, 0.4))",
                   }}
                 />
-                <span style={{ fontWeight: "800", letterSpacing: "-0.4px", color: "#ffffff" }}>
-                  <span style={{ color: "var(--pt-primary)" }}>PARAKSH</span>TECH
+                <span style={{ fontWeight: "800", letterSpacing: "-0.5px", color: "#ffffff" }}>
+                  <span style={{ color: "var(--pt-primary)" }}>ARAKSH</span>TECH
                 </span>
               </Link>
               <div

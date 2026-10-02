@@ -379,22 +379,23 @@ header#site-header .navbar {
 .navbar-brand.pt-brand-logo {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 4px !important;
+  gap: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
   flex-shrink: 0 !important;
   text-decoration: none !important;
   font-size: 1.35rem !important;
   font-weight: 800 !important;
-  letter-spacing: -0.4px !important;
+  letter-spacing: -0.5px !important;
   color: #0f172a !important;
   line-height: 1 !important;
   z-index: 2;
 }
 
 .navbar-brand.pt-brand-logo img {
-  width: 44px !important;
-  height: 44px !important;
+  width: auto !important;
+  height: 40px !important;
+  margin-right: -2px !important;
   object-fit: contain !important;
   flex-shrink: 0 !important;
 }
@@ -517,12 +518,13 @@ header#site-header .navbar {
 
   header#site-header .navbar-brand.pt-brand-logo {
     font-size: 1.15rem !important;
-    gap: 3px !important;
+    gap: 0 !important;
   }
 
   header#site-header .navbar-brand.pt-brand-logo img {
-    width: 36px !important;
-    height: 36px !important;
+    width: auto !important;
+    height: 35px !important;
+    margin-right: -1px !important;
   }
 
   header#site-header .navbar-toggler {
@@ -2150,12 +2152,13 @@ p.lead {
 
   header#site-header .navbar-brand.pt-brand-logo {
     font-size: 1.08rem !important;
-    gap: 3px !important;
+    gap: 0 !important;
   }
 
   header#site-header .navbar-brand.pt-brand-logo img {
-    width: 34px !important;
-    height: 34px !important;
+    width: auto !important;
+    height: 32px !important;
+    margin-right: -1px !important;
   }
 
   /* Hero Section */
@@ -2246,12 +2249,13 @@ p.lead {
 @media (max-width: 380px) {
   header#site-header .navbar-brand.pt-brand-logo {
     font-size: 0.98rem !important;
-    gap: 2px !important;
+    gap: 0 !important;
   }
 
   header#site-header .navbar-brand.pt-brand-logo img {
-    width: 30px !important;
-    height: 30px !important;
+    width: auto !important;
+    height: 28px !important;
+    margin-right: -1px !important;
   }
 
   h1.display-4 {
@@ -2320,12 +2324,13 @@ p.lead {
 
   .navbar-brand.pt-brand-logo {
     font-size: 1.45rem !important;
-    gap: 4px !important;
+    gap: 0 !important;
   }
 
   .navbar-brand.pt-brand-logo img {
-    width: 46px !important;
-    height: 46px !important;
+    width: auto !important;
+    height: 44px !important;
+    margin-right: -2px !important;
   }
 
   .pt-nav-link {
@@ -2456,12 +2461,13 @@ p.lead {
 
   .navbar-brand.pt-brand-logo {
     font-size: 1.55rem !important;
-    gap: 5px !important;
+    gap: 0 !important;
   }
 
   .navbar-brand.pt-brand-logo img {
-    width: 50px !important;
-    height: 50px !important;
+    width: auto !important;
+    height: 48px !important;
+    margin-right: -2px !important;
   }
 
   .pt-nav-link {
@@ -2604,12 +2610,13 @@ p.lead {
 
   .navbar-brand.pt-brand-logo {
     font-size: 1.75rem !important;
-    gap: 6px !important;
+    gap: 0 !important;
   }
 
   .navbar-brand.pt-brand-logo img {
-    width: 56px !important;
-    height: 56px !important;
+    width: auto !important;
+    height: 52px !important;
+    margin-right: -2px !important;
   }
 
   .pt-nav-link {

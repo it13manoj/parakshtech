@@ -78,7 +78,7 @@ export const AdminLogin = () => {
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: "4px",
+              gap: "0px",
               textDecoration: "none",
               marginBottom: "16px",
             }}
@@ -87,14 +87,15 @@ export const AdminLogin = () => {
               src={logo}
               alt="ParakshTech"
               style={{
-                width: "44px",
-                height: "44px",
+                width: "auto",
+                height: "40px",
                 objectFit: "contain",
+                marginRight: "-2px",
                 filter: "drop-shadow(0 2px 10px rgba(245, 32, 41, 0.4))",
               }}
             />
-            <span style={{ fontSize: "1.45rem", fontWeight: "800", color: "#ffffff" }}>
-              <span style={{ color: "var(--pt-primary)" }}>PARAKSH</span>TECH
+            <span style={{ fontSize: "1.45rem", fontWeight: "800", letterSpacing: "-0.5px", color: "#ffffff" }}>
+              <span style={{ color: "var(--pt-primary)" }}>ARAKSH</span>TECH
             </span>
           </Link>
           <div

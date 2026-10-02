@@ -232,7 +232,7 @@ export const AdminLayout = () => {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "6px",
+              gap: "0px",
               textDecoration: "none",
               whiteSpace: "nowrap",
               overflow: "hidden",
@@ -242,16 +242,17 @@ export const AdminLayout = () => {
               src={logo}
               alt="Logo"
               style={{
-                width: "36px",
-                height: "36px",
+                width: "auto",
+                height: "34px",
                 objectFit: "contain",
+                marginRight: "-2px",
                 flexShrink: 0,
               }}
             />
             {sidebarOpen && (
               <div style={{ whiteSpace: "nowrap", overflow: "hidden" }}>
                 <div style={{ fontWeight: "800", fontSize: "1.1rem", color: "#ffffff", lineHeight: 1, whiteSpace: "nowrap" }}>
-                  <span style={{ color: "var(--pt-primary)" }}>PARAKSH</span>TECH
+                  <span style={{ color: "var(--pt-primary)" }}>ARAKSH</span>TECH
                 </div>
                 <div
                   style={{
