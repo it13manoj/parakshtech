@@ -201,16 +201,22 @@ export const AdminLayout = () => {
       <aside
         style={{
           width: sidebarOpen ? "270px" : "80px",
+          minWidth: sidebarOpen ? "270px" : "80px",
+          maxWidth: sidebarOpen ? "270px" : "80px",
+          flexShrink: 0,
+          flexGrow: 0,
           background: "rgba(15, 23, 42, 0.95)",
           borderRight: "1px solid rgba(255, 255, 255, 0.08)",
           display: "flex",
           flexDirection: "column",
-          transition: "width 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+          transition: "width 0.25s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.25s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
           zIndex: 100,
           position: "sticky",
           top: 0,
           height: "100vh",
           overflowY: "auto",
+          overflowX: "hidden",
+          boxSizing: "border-box",
         }}
       >
         {/* Brand Header */}
@@ -221,6 +227,8 @@ export const AdminLayout = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: sidebarOpen ? "space-between" : "center",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
           }}
         >
           <Link
@@ -230,6 +238,8 @@ export const AdminLayout = () => {
               alignItems: "center",
               gap: "10px",
               textDecoration: "none",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
             }}
           >
             <img
@@ -243,8 +253,8 @@ export const AdminLayout = () => {
               }}
             />
             {sidebarOpen && (
-              <div>
-                <div style={{ fontWeight: "800", fontSize: "1.1rem", color: "#ffffff", lineHeight: 1 }}>
+              <div style={{ whiteSpace: "nowrap", overflow: "hidden" }}>
+                <div style={{ fontWeight: "800", fontSize: "1.1rem", color: "#ffffff", lineHeight: 1, whiteSpace: "nowrap" }}>
                   <span style={{ color: "var(--pt-primary)" }}>ARAKSH</span>TECH
                 </div>
                 <div
@@ -254,6 +264,7 @@ export const AdminLayout = () => {
                     fontWeight: "700",
                     letterSpacing: "1px",
                     marginTop: "3px",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   ADMIN CONSOLE
@@ -336,6 +347,9 @@ export const AdminLayout = () => {
                     transition: "all 0.2s ease",
                     justifyContent: sidebarOpen ? "flex-start" : "center",
                     boxShadow: isActive ? "0 4px 15px rgba(245, 32, 41, 0.4)" : "none",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    flexShrink: 0,
                   }}
                   title={!sidebarOpen ? item.label : undefined}
                 >
@@ -346,6 +360,7 @@ export const AdminLayout = () => {
                       width: "20px",
                       textAlign: "center",
                       color: isActive ? "#ffffff" : "var(--pt-primary)",
+                      flexShrink: 0,
                     }}
                   />
                   {sidebarOpen && (
@@ -355,9 +370,20 @@ export const AdminLayout = () => {
                         alignItems: "center",
                         justifyContent: "space-between",
                         flexGrow: 1,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        minWidth: 0,
                       }}
                     >
-                      <span>{item.label}</span>
+                      <span
+                        style={{
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {item.label}
+                      </span>
                       {item.badge && (
                         <span
                           style={{
@@ -369,6 +395,9 @@ export const AdminLayout = () => {
                             padding: "2px 6px",
                             borderRadius: "99px",
                             fontWeight: "700",
+                            whiteSpace: "nowrap",
+                            flexShrink: 0,
+                            marginLeft: "8px",
                           }}
                         >
                           {item.badge}
@@ -390,6 +419,8 @@ export const AdminLayout = () => {
             display: "flex",
             flexDirection: "column",
             gap: "8px",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
           }}
         >
           <a
@@ -407,11 +438,14 @@ export const AdminLayout = () => {
               fontSize: "0.82rem",
               background: "rgba(255, 255, 255, 0.04)",
               justifyContent: sidebarOpen ? "flex-start" : "center",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              flexShrink: 0,
             }}
             title="View Live Site"
           >
-            <i className="fas fa-external-link-alt" style={{ width: "20px", textAlign: "center" }} />
-            {sidebarOpen && <span>View Public Site</span>}
+            <i className="fas fa-external-link-alt" style={{ width: "20px", textAlign: "center", flexShrink: 0 }} />
+            {sidebarOpen && <span style={{ whiteSpace: "nowrap" }}>View Public Site</span>}
           </a>
 
           <button
@@ -430,11 +464,14 @@ export const AdminLayout = () => {
               cursor: "pointer",
               justifyContent: sidebarOpen ? "flex-start" : "center",
               width: "100%",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              flexShrink: 0,
             }}
             title="Logout"
           >
-            <i className="fas fa-sign-out-alt" style={{ width: "20px", textAlign: "center" }} />
-            {sidebarOpen && <span style={{ fontWeight: "600" }}>Sign Out</span>}
+            <i className="fas fa-sign-out-alt" style={{ width: "20px", textAlign: "center", flexShrink: 0 }} />
+            {sidebarOpen && <span style={{ fontWeight: "600", whiteSpace: "nowrap" }}>Sign Out</span>}
           </button>
         </div>
       </aside>
@@ -541,7 +578,17 @@ export const AdminLayout = () => {
         </header>
 
         {/* Dynamic Nested View */}
-        <main style={{ padding: "30px", flexGrow: 1, overflowX: "hidden" }}>
+        <main
+          style={{
+            padding: "24px 28px",
+            flexGrow: 1,
+            flexShrink: 1,
+            overflowX: "auto",
+            minWidth: 0,
+            width: "100%",
+            boxSizing: "border-box",
+          }}
+        >
           <AdminErrorBoundary>
             <Outlet />
           </AdminErrorBoundary>

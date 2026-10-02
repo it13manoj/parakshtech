@@ -832,6 +832,7 @@ export const ContactsManager = () => {
         <div
           style={{
             flex: 1,
+            minWidth: 0,
             display: isMobileView && !selectedInquiry ? "none" : "flex",
             flexDirection: "column",
             background: "#0b0f19",
