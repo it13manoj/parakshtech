@@ -128,7 +128,7 @@ export const AdminDashboard = () => {
       {/* Stats Cards Grid */}
       <div className="row g-4 mb-5">
         {statCards.map((item, idx) => (
-          <div key={idx} className="col-xl col-md-4 col-sm-6">
+          <div key={idx} className="col-xl col-md-4 col-6">
             <div
               style={{
                 background: "rgba(15, 23, 42, 0.75)",

@@ -87,7 +87,7 @@ export const StatsCounter = () => {
       <div className="container">
         <div className="row g-4 align-items-center">
           {stats.map((stat, idx) => (
-            <div key={idx} className="col-lg-3 col-sm-6">
+            <div key={idx} className="col-lg-3 col-sm-6 col-6">
               <div className="pt-stat-item">
                 <div
                   style={{

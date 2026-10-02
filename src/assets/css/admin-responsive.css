@@ -1,0 +1,229 @@
+/* ==========================================================================
+   ParakshTech Admin Console - Comprehensive Responsive Media Styles
+   Provides seamless adaptive layouts across mobile, tablet, and desktop screens
+   ========================================================================== */
+
+/* ── Base Variables & Layout Container ── */
+:root {
+  --admin-sidebar-width: 270px;
+  --admin-sidebar-collapsed-width: 80px;
+  --admin-topbar-height: 70px;
+  --admin-bg-dark: #0b0f19;
+  --admin-surface-dark: #0f172a;
+  --admin-surface-card: #1e293b;
+  --admin-primary: #f52029;
+}
+
+.pt-admin-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background: var(--admin-bg-dark);
+  color: #f8fafc;
+  font-family: 'Poppins', sans-serif;
+  position: relative;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* ── Sidebar: Desktop Defaults ── */
+.pt-admin-sidebar {
+  background: rgba(15, 23, 42, 0.98);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              min-width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              max-width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.pt-admin-sidebar.open {
+  width: var(--admin-sidebar-width);
+  min-width: var(--admin-sidebar-width);
+  max-width: var(--admin-sidebar-width);
+}
+
+.pt-admin-sidebar.collapsed {
+  width: var(--admin-sidebar-collapsed-width);
+  min-width: var(--admin-sidebar-collapsed-width);
+  max-width: var(--admin-sidebar-collapsed-width);
+}
+
+/* ── Backdrop Overlay (Mobile / Tablet) ── */
+.pt-admin-backdrop {
+  display: none;
+}
+
+/* ── Main Content Area: Desktop Defaults ── */
+.pt-admin-main-area {
+  flex-grow: 1;
+  flex-shrink: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+  background: var(--admin-bg-dark);
+  overflow-x: hidden;
+}
+
+/* ── Top Navbar: Desktop Defaults ── */
+.pt-admin-topbar {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Main Content Container: Desktop Defaults ── */
+.pt-admin-content-view {
+  padding: 28px 32px;
+  flex-grow: 1;
+  flex-shrink: 1;
+  overflow-x: auto;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Responsive Breakpoint: Desktop Screens (>= 992px)
+   ========================================================================== */
+@media (min-width: 992px) {
+  .pt-admin-backdrop {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Responsive Breakpoint: Tablet & Mobile Devices (< 992px)
+   Transforms Sidebar into Off-Canvas Slide Drawer with Dimmed Backdrop
+   ========================================================================== */
+@media (max-width: 991.98px) {
+  /* Off-canvas Drawer Sidebar */
+  .pt-admin-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    height: 100vh !important;
+    width: 280px !important;
+    min-width: 280px !important;
+    max-width: 85vw !important;
+    z-index: 1050 !important;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.6) !important;
+    transform: translateX(-100%);
+  }
+
+  .pt-admin-sidebar.mobile-open {
+    transform: translateX(0) !important;
+  }
+
+  /* Full Screen Backdrop */
+  .pt-admin-backdrop.active {
+    display: block !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1040;
+    transition: opacity 0.25s ease;
+  }
+
+  /* Main Content occupies 100% full screen width */
+  .pt-admin-main-area {
+    width: 100% !important;
+    min-width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  .pt-admin-topbar {
+    padding: 14px 18px !important;
+  }
+
+  .pt-admin-content-view {
+    padding: 20px 16px !important;
+  }
+}
+
+/* ==========================================================================
+   Responsive Breakpoint: Mobile Phones (< 768px)
+   ========================================================================== */
+@media (max-width: 767.98px) {
+  .pt-admin-sidebar {
+    width: 270px !important;
+    min-width: 270px !important;
+  }
+
+  .pt-admin-topbar {
+    padding: 12px 14px !important;
+  }
+
+  .pt-admin-topbar-title {
+    font-size: 0.95rem !important;
+  }
+
+  .pt-admin-db-status {
+    display: none !important;
+  }
+
+  .pt-admin-content-view {
+    padding: 16px 12px !important;
+  }
+
+  /* Ensure card action bars wrap gracefully */
+  .pt-admin-header-actions {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+}
+
+/* ==========================================================================
+   Responsive Breakpoint: Extra Small Phones (< 480px)
+   ========================================================================== */
+@media (max-width: 479.98px) {
+  .pt-admin-topbar-title {
+    font-size: 0.88rem !important;
+  }
+
+  .pt-admin-content-view {
+    padding: 12px 8px !important;
+  }
+}
+
+/* Custom modern scrollbar for sidebar */
+.pt-admin-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+.pt-admin-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.pt-admin-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+.pt-admin-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

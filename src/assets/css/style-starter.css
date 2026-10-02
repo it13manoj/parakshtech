@@ -11822,6 +11822,8 @@ fieldset:disabled .btn {
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   font-family: 'Poppins', sans-serif;
+}
+
 .noscroll {
   /* Safe non-locking rule to prevent viewport freezing on mobile */
   touch-action: pan-y;
@@ -18995,9 +18997,21 @@ header.nav-fixed {
     padding: 0;
   }
 
-  .navbar-collapse {
+  .navbar-collapse:not(.show) {
+    display: none !important;
+  }
+
+  .navbar-collapse.show {
     max-height: calc(100vh - 80px);
-    overflow-y: scroll;
+    overflow-y: auto;
+    display: block !important;
+    float: left;
+    text-align: center;
+    width: 100%;
+    background: var(--bg-color);
+    padding: 20px;
+    margin-top: 16px;
+    box-shadow: 0 6px 19px rgba(0, 0, 0, 0.05);
   }
 
   .navbar-toggler {
@@ -19007,16 +19021,6 @@ header.nav-fixed {
 
   .navbar-toggler:focus {
     box-shadow: none;
-  }
-
-  .navbar-collapse {
-    float: left;
-    text-align: center;
-    width: 100%;
-    background: var(--bg-color);
-    padding: 20px;
-    margin-top: 16px;
-    box-shadow: 0 6px 19px rgba(0, 0, 0, 0.05);
   }
 
   .navbar-expand-lg .navbar-nav .nav-item {

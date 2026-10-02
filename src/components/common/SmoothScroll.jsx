@@ -16,14 +16,26 @@ export const SmoothScroll = ({ children }) => {
     // Only run in browser environment
     if (typeof window === "undefined") return;
 
+    // Detect touch / mobile device
+    const isTouchOnly =
+      window.innerWidth < 1024 &&
+      (window.matchMedia("(pointer: coarse)").matches ||
+        "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0);
+
+    // On mobile touch devices, use native hardware-accelerated GPU scrolling for maximum fluidity
+    if (isTouchOnly) {
+      window.lenis = null;
+      return;
+    }
+
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.1,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
       wheelMultiplier: 1.0,
-      touchMultiplier: 1.5,
       infinite: false,
       autoRaf: false,
     });
@@ -46,10 +58,12 @@ export const SmoothScroll = ({ children }) => {
     };
   }, []);
 
-  // When route changes, reset scroll to top smoothly
+  // When route changes, reset scroll to top
   useEffect(() => {
     if (lenisRef.current) {
       lenisRef.current.scrollTo(0, { immediate: true });
+    } else if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }
   }, [location.pathname]);
 

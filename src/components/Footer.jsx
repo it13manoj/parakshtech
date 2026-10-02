@@ -145,7 +145,7 @@ export const Footer = () => {
             </div>
 
             {/* Column 2: Core Services */}
-            <div className="col-lg-2 col-md-6">
+            <div className="col-lg-2 col-md-6 col-6">
               <h6>Services</h6>
               <ul>
                 <li>
@@ -170,7 +170,7 @@ export const Footer = () => {
             </div>
 
             {/* Column 3: Quick Links */}
-            <div className="col-lg-2 col-md-6">
+            <div className="col-lg-2 col-md-6 col-6">
               <h6>Quick Links</h6>
               <ul>
                 <li>

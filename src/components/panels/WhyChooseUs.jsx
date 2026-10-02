@@ -157,7 +157,7 @@ export const WhyChooseUs = () => {
 
               {/* Floating Experience Badge with Glow */}
               <div
-                className="pt-animate-float"
+                className="pt-experience-badge pt-animate-float"
                 style={{
                   position: "absolute",
                   bottom: "30px",

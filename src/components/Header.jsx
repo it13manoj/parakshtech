@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/images/logo.png";
 
 export const Header = () => {
   const location = useLocation();
+  const headerRef = useRef(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -27,6 +28,33 @@ export const Header = () => {
     document.body.style.overflow = "";
     document.body.classList.remove("noscroll");
   }, [location.pathname]);
+
+  // Close mobile menu on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Close mobile menu when clicking or tapping outside the header
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const handleClickOutside = (e) => {
+      if (headerRef.current && !headerRef.current.contains(e.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   const isActive = (path) => {
     if (path === "/") {
@@ -55,14 +83,27 @@ export const Header = () => {
   };
 
   return (
-    <header
-      id="site-header"
-      className={`fixed-top pt-header-glass ${isScrolled ? "nav-fixed" : ""}`}
-    >
-      <div className="container">
-        <nav className="navbar navbar-expand-lg">
-          {/* Brand Logo: Logo Image functions as stylized 'P', followed by ARAKSHTECH */}
-          <Link className="navbar-brand pt-brand-logo" to="/">
+    <>
+      {/* Mobile Backdrop Overlay */}
+      <div
+        className={`pt-mobile-backdrop ${isMenuOpen ? "active" : ""}`}
+        onClick={() => setIsMenuOpen(false)}
+        aria-hidden="true"
+      />
+
+      <header
+        id="site-header"
+        ref={headerRef}
+        className={`fixed-top pt-header-glass ${isScrolled ? "nav-fixed" : ""}`}
+      >
+        <div className="container">
+          <nav className="navbar navbar-expand-lg">
+            {/* Brand Logo: Logo Image functions as stylized 'P', followed by ARAKSHTECH */}
+            <Link
+              className="navbar-brand pt-brand-logo"
+              to="/"
+              onClick={() => setIsMenuOpen(false)}
+            >
             <img
               src={logo}
               alt="ParakshTech Logo"
@@ -147,6 +188,7 @@ export const Header = () => {
         </nav>
       </div>
     </header>
+    </>
   );
 };
 

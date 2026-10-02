@@ -153,7 +153,7 @@ export const AboutUs = () => {
 
               {/* Quality Seal Badge */}
               <div
-                className="pt-animate-float"
+                className="pt-quality-badge pt-animate-float"
                 style={{
                   position: "absolute",
                   bottom: "25px",

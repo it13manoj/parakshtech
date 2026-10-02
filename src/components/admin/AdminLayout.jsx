@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
+import "../../assets/css/admin-responsive.css";
 
 // Resilient Error Boundary to safeguard Admin Sidebar from any child panel crashes
 class AdminErrorBoundary extends React.Component {
@@ -114,17 +115,29 @@ export const AdminLayout = () => {
     return true;
   });
 
-  // Manual event handler to toggle sidebar state
+  // Mobile off-canvas drawer state (< 992px)
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+
+  // Automatically close mobile drawer when navigating to a new route
+  useEffect(() => {
+    setMobileDrawerOpen(false);
+  }, [location.pathname]);
+
+  // Manual event handler to toggle sidebar state across all screen devices
   const handleToggleSidebar = () => {
-    setSidebarOpen((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem("pt_admin_sidebar_open", String(next));
-      } catch {
-        // ignore
-      }
-      return next;
-    });
+    if (window.innerWidth < 992) {
+      setMobileDrawerOpen((prev) => !prev);
+    } else {
+      setSidebarOpen((prev) => {
+        const next = !prev;
+        try {
+          localStorage.setItem("pt_admin_sidebar_open", String(next));
+        } catch {
+          // ignore
+        }
+        return next;
+      });
+    }
   };
 
   let user = { name: "Administrator" };
@@ -188,36 +201,19 @@ export const AdminLayout = () => {
   ];
 
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        background: "#0b0f19",
-        color: "#f8fafc",
-        fontFamily: "'Poppins', sans-serif",
-      }}
-    >
+    <div className="pt-admin-wrapper">
+      {/* ── Mobile Backdrop (< 992px) ── */}
+      <div
+        className={`pt-admin-backdrop ${mobileDrawerOpen ? "active" : ""}`}
+        onClick={() => setMobileDrawerOpen(false)}
+        aria-hidden="true"
+      />
+
       {/* ── Sidebar ── */}
       <aside
-        style={{
-          width: sidebarOpen ? "270px" : "80px",
-          minWidth: sidebarOpen ? "270px" : "80px",
-          maxWidth: sidebarOpen ? "270px" : "80px",
-          flexShrink: 0,
-          flexGrow: 0,
-          background: "rgba(15, 23, 42, 0.95)",
-          borderRight: "1px solid rgba(255, 255, 255, 0.08)",
-          display: "flex",
-          flexDirection: "column",
-          transition: "width 0.25s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.25s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
-          zIndex: 100,
-          position: "sticky",
-          top: 0,
-          height: "100vh",
-          overflowY: "auto",
-          overflowX: "hidden",
-          boxSizing: "border-box",
-        }}
+        className={`pt-admin-sidebar ${sidebarOpen ? "open" : "collapsed"} ${
+          mobileDrawerOpen ? "mobile-open" : ""
+        }`}
       >
         {/* Brand Header */}
         <div
@@ -273,35 +269,57 @@ export const AdminLayout = () => {
             )}
           </Link>
 
-          {sidebarOpen && (
-            <button
-              type="button"
-              onClick={handleToggleSidebar}
-              style={{
-                background: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                color: "#94a3b8",
-                width: "28px",
-                height: "28px",
-                borderRadius: "8px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "all 0.2s ease",
-              }}
-              title="Collapse sidebar (Manual toggle)"
-              aria-label="Collapse sidebar"
-            >
-              <i className="fas fa-angle-left" />
-            </button>
-          )}
+          {/* Desktop Collapse Button (>= 992px) */}
+          <button
+            type="button"
+            className="d-none d-lg-flex"
+            onClick={handleToggleSidebar}
+            style={{
+              background: "rgba(255, 255, 255, 0.05)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              color: "#94a3b8",
+              width: "28px",
+              height: "28px",
+              borderRadius: "8px",
+              cursor: "pointer",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s ease",
+            }}
+            title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            aria-label="Collapse sidebar"
+          >
+            <i className="fas fa-angle-left" />
+          </button>
+
+          {/* Mobile Drawer Close Button (< 992px) */}
+          <button
+            type="button"
+            className="d-flex d-lg-none"
+            onClick={() => setMobileDrawerOpen(false)}
+            style={{
+              background: "rgba(255, 255, 255, 0.08)",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+              color: "#cbd5e1",
+              width: "28px",
+              height: "28px",
+              borderRadius: "8px",
+              cursor: "pointer",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "0.82rem",
+            }}
+            title="Close menu"
+            aria-label="Close menu"
+          >
+            ✕
+          </button>
         </div>
 
         {/* Navigation Items */}
         <div style={{ padding: "20px 12px", flexGrow: 1 }}>
           {!sidebarOpen && (
-            <div className="text-center mb-3">
+            <div className="d-none d-lg-block text-center mb-3">
               <button
                 type="button"
                 onClick={handleToggleSidebar}
@@ -333,6 +351,11 @@ export const AdminLayout = () => {
                 <Link
                   key={item.to}
                   to={item.to}
+                  onClick={() => {
+                    if (window.innerWidth < 992) {
+                      setMobileDrawerOpen(false);
+                    }
+                  }}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -477,23 +500,10 @@ export const AdminLayout = () => {
       </aside>
 
       {/* ── Main Content Area ── */}
-      <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+      <div className="pt-admin-main-area">
         {/* Top Navbar */}
-        <header
-          style={{
-            background: "rgba(15, 23, 42, 0.8)",
-            backdropFilter: "blur(16px)",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-            padding: "16px 28px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            position: "sticky",
-            top: 0,
-            zIndex: 90,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+        <header className="pt-admin-topbar">
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
             {/* Manual Toggle Button */}
             <button
               type="button"
@@ -510,17 +520,29 @@ export const AdminLayout = () => {
                 justifyContent: "center",
                 cursor: "pointer",
                 transition: "all 0.2s ease",
+                flexShrink: 0,
               }}
-              title={sidebarOpen ? "Collapse sidebar (Manual toggle)" : "Expand sidebar (Manual toggle)"}
-              aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+              title="Toggle Navigation Sidebar"
+              aria-label="Toggle Navigation Sidebar"
             >
-              <i className={`fas ${sidebarOpen ? "fa-outdent" : "fa-indent"}`} style={{ fontSize: "1rem" }} />
+              <i className="fas fa-bars" style={{ fontSize: "1rem" }} />
             </button>
 
-            <div style={{ fontSize: "1.05rem", fontWeight: "700", color: "#ffffff" }}>
+            <div
+              className="pt-admin-topbar-title"
+              style={{
+                fontSize: "1.05rem",
+                fontWeight: "700",
+                color: "#ffffff",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
               ParakshTech Content Management
             </div>
             <span
+              className="pt-admin-db-status"
               style={{
                 fontSize: "0.72rem",
                 padding: "3px 10px",
@@ -529,13 +551,15 @@ export const AdminLayout = () => {
                 color: "#34d399",
                 border: "1px solid rgba(16, 185, 129, 0.3)",
                 fontWeight: "600",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
               }}
             >
-              ● MySQL Database Live
+              ● MySQL Live
             </span>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px", flexShrink: 0 }}>
             <Link
               to="/admin/settings"
               style={{
@@ -578,17 +602,7 @@ export const AdminLayout = () => {
         </header>
 
         {/* Dynamic Nested View */}
-        <main
-          style={{
-            padding: "24px 28px",
-            flexGrow: 1,
-            flexShrink: 1,
-            overflowX: "auto",
-            minWidth: 0,
-            width: "100%",
-            boxSizing: "border-box",
-          }}
-        >
+        <main className="pt-admin-content-view">
           <AdminErrorBoundary>
             <Outlet />
           </AdminErrorBoundary>

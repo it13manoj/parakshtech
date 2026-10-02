@@ -464,7 +464,7 @@ export const ContactsManager = () => {
         ].map((tab) => {
           const isActive = statusFilter === tab.id;
           return (
-            <div key={tab.id} className="col">
+            <div key={tab.id} className="col-6 col-sm-4 col-xl">
               <button
                 type="button"
                 onClick={() => setStatusFilter(tab.id)}
@@ -522,7 +522,7 @@ export const ContactsManager = () => {
           border: "1px solid rgba(255, 255, 255, 0.08)",
           borderRadius: "16px",
           overflow: "hidden",
-          minHeight: "700px",
+          minHeight: isMobileView ? "520px" : "700px",
           height: isMobileView ? "auto" : "calc(100vh - 280px)",
           maxHeight: isMobileView ? "none" : "850px",
           display: "flex",

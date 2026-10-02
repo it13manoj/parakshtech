@@ -41,6 +41,9 @@ margin: 0.5rem;
 }
 @media (max-width: 768px) {
   .socialMedia {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
   }
 }
