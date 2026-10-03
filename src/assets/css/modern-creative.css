@@ -2703,3 +2703,51 @@ p.lead {
   }
 }
 
+/* ==========================================================================
+   Team Members Showcase (ExpertPeople) Responsive Image & Card Styles
+   Guarantees 1:1 aspect ratio, top-anchored alignment, and prevents top cropping
+   ========================================================================== */
+.pt-team-photo-wrap {
+  width: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  height: auto !important;
+  max-height: 420px;
+  overflow: hidden !important;
+  border-radius: 14px !important;
+  background: #0f172a !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  position: relative !important;
+  margin-bottom: 18px !important;
+}
+
+.pt-team-photo-wrap img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: top center !important;
+  display: block !important;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.pt-team-card {
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.pt-team-card:hover {
+  transform: translateY(-5px) !important;
+  border-color: rgba(245, 32, 41, 0.35) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4) !important;
+}
+
+.pt-team-card:hover .pt-team-photo-wrap img {
+  transform: scale(1.035) !important;
+}
+
+@media (max-width: 575.98px) {
+  .pt-team-card {
+    max-width: 360px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+

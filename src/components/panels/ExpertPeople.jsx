@@ -243,7 +243,7 @@ export const ExpertPeople = () => {
               return (
                 <div key={member.id || idx} className="col-lg-3 col-md-6 col-sm-10">
                   <SpotlightCard
-                    className="p-3 text-center h-100"
+                    className="p-3 text-center h-100 pt-team-card"
                     maxTilt={8}
                     style={{
                       background: "rgba(15, 23, 42, 0.7)",
@@ -258,10 +258,11 @@ export const ExpertPeople = () => {
                     <div>
                       {/* Member Photo */}
                       <div
-                        className="position-relative mb-3 overflow-hidden rounded-3"
+                        className="position-relative mb-3 overflow-hidden rounded-3 pt-team-photo-wrap"
                         style={{
                           background: "#0f172a",
-                          height: "280px",
+                          width: "100%",
+                          aspectRatio: "1 / 1",
                           borderRadius: "12px",
                           border: "1px solid rgba(255, 255, 255, 0.06)",
                         }}
@@ -274,6 +275,7 @@ export const ExpertPeople = () => {
                             height: "100%",
                             width: "100%",
                             objectFit: "cover",
+                            objectPosition: "top center",
                             transition: "transform 0.4s ease",
                           }}
                           onError={(e) => {
