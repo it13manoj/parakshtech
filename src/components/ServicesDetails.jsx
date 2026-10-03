@@ -87,7 +87,7 @@ export const ServicesDetails = () => {
                       src={`${API.BASE_URL_IMAGES}${currentData.images}`}
                       alt={currentData.heading}
                       className="img-fluid rounded-3"
-                      style={{ width: "100%", maxHeight: "400px", objectFit: "cover" }}
+                      style={{ width: "100%", maxHeight: "400px", objectFit: "cover", objectPosition: "top center" }}
                     />
                   </SpotlightCard>
                 </div>

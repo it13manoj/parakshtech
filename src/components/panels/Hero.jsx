@@ -609,7 +609,7 @@ const WeManageYourBusiness = () => {
                 }
                 alt="Digital Infrastructure Solutions"
                 className="img-fluid rounded-4"
-                style={{ maxHeight: "420px", width: "100%", objectFit: "cover" }}
+                style={{ maxHeight: "420px", width: "100%", objectFit: "cover", objectPosition: "top center" }}
               />
             </SpotlightCard>
           </div>

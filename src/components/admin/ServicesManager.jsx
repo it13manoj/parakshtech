@@ -720,6 +720,7 @@ export const ServicesManager = () => {
                           width: "100%",
                           height: "100%",
                           objectFit: "cover",
+                          objectPosition: "top center",
                           opacity: 0.85,
                         }}
                       />
@@ -1407,6 +1408,7 @@ export const ServicesManager = () => {
                             width: "180px",
                             height: "100px",
                             objectFit: "cover",
+                            objectPosition: "top center",
                             borderRadius: "8px",
                             border: "1px solid rgba(255, 255, 255, 0.1)",
                           }}

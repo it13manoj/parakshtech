@@ -148,7 +148,7 @@ export const AboutUs = () => {
                 }
                 alt="ParakshTech Engineering Team"
                 className="img-fluid rounded-4"
-                style={{ width: "100%", maxHeight: "480px", objectFit: "cover" }}
+                style={{ width: "100%", maxHeight: "480px", objectFit: "cover", objectPosition: "top center" }}
               />
 
               {/* Quality Seal Badge */}

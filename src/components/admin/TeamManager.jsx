@@ -1021,6 +1021,7 @@ export const TeamManager = () => {
                             height: "56px",
                             borderRadius: "50%",
                             objectFit: "cover",
+                            objectPosition: "top center",
                             border: "2px solid var(--pt-primary)",
                           }}
                         />

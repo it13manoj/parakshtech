@@ -471,7 +471,7 @@ export const PortfolioManager = () => {
                               <img
                                 src={getImageDisplay(coverImg)}
                                 alt={p.title}
-                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }}
                               />
                             ) : (
                               <div
@@ -921,7 +921,7 @@ export const PortfolioManager = () => {
                           <img
                             src={getImageDisplay(img)}
                             alt="Preview"
-                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }}
                           />
                           <button
                             type="button"
@@ -964,7 +964,7 @@ export const PortfolioManager = () => {
                           <img
                             src={url}
                             alt="New preview"
-                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }}
                           />
                           <button
                             type="button"

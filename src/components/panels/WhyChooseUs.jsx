@@ -152,7 +152,7 @@ export const WhyChooseUs = () => {
                 }
                 alt="Technology Excellence at ParakshTech"
                 className="img-fluid rounded-4"
-                style={{ width: "100%", maxHeight: "480px", objectFit: "cover" }}
+                style={{ width: "100%", maxHeight: "480px", objectFit: "cover", objectPosition: "top center" }}
               />
 
               {/* Floating Experience Badge with Glow */}

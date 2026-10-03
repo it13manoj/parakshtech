@@ -705,6 +705,7 @@ export const Portfolio = () => {
                         src={activeImgUrl}
                         alt={project.title}
                         className="pt-gallery-media-img"
+                        style={{ objectPosition: "top center" }}
                         loading="lazy"
                       />
 
@@ -1055,6 +1056,7 @@ export const Portfolio = () => {
                     src={selectedProject.images[modalImageIdx] || selectedProject.images[0]}
                     alt={selectedProject.title}
                     className="pt-gallery-theater-img"
+                    style={{ objectPosition: "top center" }}
                   />
 
                   {/* Navigation Arrows (for multi-image projects) */}
@@ -1094,6 +1096,7 @@ export const Portfolio = () => {
                         <img
                           src={imgUrl}
                           alt={`${selectedProject.title} thumb ${thumbIdx + 1}`}
+                          style={{ objectPosition: "top center" }}
                         />
                       </div>
                     ))}
