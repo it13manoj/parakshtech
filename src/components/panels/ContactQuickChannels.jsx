@@ -1,11 +1,17 @@
 import React from "react";
 import SpotlightCard from "../common/SpotlightCard";
+import useContactInfo from "../../Config/useContactInfo";
 
 /**
  * ContactQuickChannels - Interactive Direct Contact & High-Priority Discovery Cards
  * Gives prospective clients instant access to WhatsApp, phone, email, and discovery bookings.
  */
 export const ContactQuickChannels = () => {
+  const contactInfo = useContactInfo();
+  const digitsPhone = (contactInfo.phone || "919296454675").replace(/[^0-9]/g, "");
+  const cleanPhone = (contactInfo.phone || "+91 9296454675").replace(/\s+/g, "");
+  const emailAddr = contactInfo.email || "support@parakshtech.com";
+
   const channels = [
     {
       title: "Instant WhatsApp Chat",
@@ -13,27 +19,27 @@ export const ContactQuickChannels = () => {
       desc: "Connect directly with our solutions team for quick technical inquiries and pricing estimates.",
       icon: "fab fa-whatsapp",
       btnText: "Chat On WhatsApp",
-      url: "https://wa.me/919296454675",
+      url: `https://wa.me/${digitsPhone}`,
       accent: "#25d366",
       isLive: true,
     },
     {
       title: "Direct Architectural Hotline",
-      subtitle: "+91 9296454675",
+      subtitle: contactInfo.phone || "+91 9296454675",
       desc: "Speak with a principal engineering architect regarding mission-critical systems and SLAs.",
       icon: "fas fa-phone-volume",
       btnText: "Call Now",
-      url: "tel:+919296454675",
+      url: `tel:${cleanPhone}`,
       accent: "var(--pt-primary)",
       isLive: false,
     },
     {
       title: "Priority Technical Inquiry",
-      subtitle: "support@parakshtech.com",
+      subtitle: emailAddr,
       desc: "Send your technical specification or RFP. We provide detailed estimates within 24 hours.",
       icon: "fas fa-paper-plane",
       btnText: "Send Email",
-      url: "mailto:support@parakshtech.com",
+      url: `mailto:${emailAddr}`,
       accent: "var(--pt-accent-cyan)",
       isLive: false,
     },
@@ -43,7 +49,7 @@ export const ContactQuickChannels = () => {
       desc: "We sign strict non-disclosure agreements prior to reviewing any proprietary blueprints or code.",
       icon: "fas fa-file-contract",
       btnText: "Request NDA",
-      url: "mailto:support@parakshtech.com?subject=NDA%20Request%20ParakshTech",
+      url: `mailto:${emailAddr}?subject=NDA%20Request%20ParakshTech`,
       accent: "var(--pt-secondary)",
       isLive: false,
     },

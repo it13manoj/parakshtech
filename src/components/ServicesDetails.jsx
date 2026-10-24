@@ -3,9 +3,11 @@ import { useParams, Link } from "react-router-dom";
 import { ServicesHeroDetails } from "./panels/Hero";
 import axios from "axios";
 import API from "../Config/API";
+import useContactInfo from "../Config/useContactInfo";
 import SpotlightCard from "./common/SpotlightCard";
 
 export const ServicesDetails = () => {
+  const contactInfo = useContactInfo();
   const { data } = useParams();
   const [template, setTemplate] = useState(null);
 
@@ -196,10 +198,10 @@ export const ServicesDetails = () => {
                     Speak directly with a lead technical consultant today.
                   </p>
                   <a
-                    href="tel:+919296454675"
+                    href={`tel:${(contactInfo.phone || "+919296454675").replace(/\s+/g, "")}`}
                     className="btn btn-sm btn-outline-danger rounded-pill px-3 py-2 fw-semibold"
                   >
-                    <i className="fas fa-phone-alt me-1"></i> +91 9296454675
+                    <i className="fas fa-phone-alt me-1"></i> {contactInfo.phone || "+91 9296454675"}
                   </a>
                 </div>
               </div>

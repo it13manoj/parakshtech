@@ -1,7 +1,10 @@
 import React from "react";
 import SpotlightCard from "../common/SpotlightCard";
+import useContactInfo from "../../Config/useContactInfo";
 
 export const SocialMedia = () => {
+  const contactInfo = useContactInfo();
+
   const socials = [
     {
       name: "LinkedIn",
@@ -9,7 +12,7 @@ export const SocialMedia = () => {
       desc: "Follow enterprise product updates, case studies, and engineering careers.",
       icon: "fab fa-linkedin-in",
       color: "#0a66c2",
-      url: "https://www.linkedin.com/company/parakshtech",
+      url: contactInfo.linkedin || "https://www.linkedin.com/company/parakshtech",
     },
     {
       name: "Facebook",
@@ -17,7 +20,7 @@ export const SocialMedia = () => {
       desc: "Join our community events, cultural milestones, and tech webinars.",
       icon: "fab fa-facebook-f",
       color: "#1877f2",
-      url: "https://www.facebook.com/profile.php?id=61579256180141",
+      url: contactInfo.facebook || "https://www.facebook.com/profile.php?id=61579256180141",
     },
     {
       name: "Instagram",
@@ -25,15 +28,15 @@ export const SocialMedia = () => {
       desc: "Behind-the-scenes engineering life, creative design showcases, and team stories.",
       icon: "fab fa-instagram",
       color: "#e1306c",
-      url: "https://www.instagram.com/parakshtech/",
+      url: contactInfo.instagram || "https://www.instagram.com/parakshtech/",
     },
     {
       name: "Direct Inquiry",
-      handle: "support@parakshtech.com",
+      handle: contactInfo.email || "support@parakshtech.com",
       desc: "Schedule a high-priority conversation with our principal architects.",
       icon: "fas fa-paper-plane",
       color: "var(--pt-primary)",
-      url: "mailto:support@parakshtech.com",
+      url: `mailto:${contactInfo.email || "support@parakshtech.com"}`,
     },
   ];
 

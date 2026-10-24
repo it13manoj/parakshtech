@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import API from "../Config/API";
+import useContactInfo from "../Config/useContactInfo";
 import { Link } from "react-router-dom";
 import logo from "../assets/images/logo.png";
 
 export const Footer = () => {
+  const contactInfo = useContactInfo();
   const [templates, setTemplates] = useState(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState("");
@@ -107,35 +109,52 @@ export const Footer = () => {
 
               {/* Social Media Grid */}
               <div className="d-flex align-items-center gap-2 mt-4">
+                {contactInfo.linkedin && (
+                  <a
+                    href={contactInfo.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pt-social-icon-btn"
+                    aria-label="LinkedIn"
+                  >
+                    <i className="fab fa-linkedin-in"></i>
+                  </a>
+                )}
+                {contactInfo.facebook && (
+                  <a
+                    href={contactInfo.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pt-social-icon-btn"
+                    aria-label="Facebook"
+                  >
+                    <i className="fab fa-facebook-f"></i>
+                  </a>
+                )}
+                {contactInfo.instagram && (
+                  <a
+                    href={contactInfo.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pt-social-icon-btn"
+                    aria-label="Instagram"
+                  >
+                    <i className="fab fa-instagram"></i>
+                  </a>
+                )}
+                {contactInfo.twitter && (
+                  <a
+                    href={contactInfo.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pt-social-icon-btn"
+                    aria-label="Twitter"
+                  >
+                    <i className="fab fa-twitter"></i>
+                  </a>
+                )}
                 <a
-                  href="https://www.linkedin.com/company/parakshtech"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="pt-social-icon-btn"
-                  aria-label="LinkedIn"
-                >
-                  <i className="fab fa-linkedin-in"></i>
-                </a>
-                <a
-                  href="https://www.facebook.com/profile.php?id=61579256180141"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="pt-social-icon-btn"
-                  aria-label="Facebook"
-                >
-                  <i className="fab fa-facebook-f"></i>
-                </a>
-                <a
-                  href="https://www.instagram.com/parakshtech/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="pt-social-icon-btn"
-                  aria-label="Instagram"
-                >
-                  <i className="fab fa-instagram"></i>
-                </a>
-                <a
-                  href="mailto:support@parakshtech.com"
+                  href={`mailto:${contactInfo.email || "support@parakshtech.com"}`}
                   className="pt-social-icon-btn"
                   aria-label="Email Us"
                 >
@@ -238,12 +257,15 @@ export const Footer = () => {
               <div style={{ fontSize: "0.88rem", color: "#94a3b8" }}>
                 <div className="d-flex align-items-center mb-2 gap-2">
                   <i className="fas fa-map-marker-alt" style={{ color: "var(--pt-primary)" }}></i>
-                  <span>Pustakalaya Road, Buxar, Bihar</span>
+                  <span>{contactInfo.address || "Pustakalaya Road, Buxar, Bihar"}</span>
                 </div>
                 <div className="d-flex align-items-center gap-2">
                   <i className="fas fa-phone-alt" style={{ color: "var(--pt-primary)" }}></i>
-                  <a href="tel:+919296454675" style={{ color: "#94a3b8", textDecoration: "none" }}>
-                    +91 9296454675
+                  <a
+                    href={`tel:${(contactInfo.phone || "+919296454675").replace(/\s+/g, "")}`}
+                    style={{ color: "#94a3b8", textDecoration: "none" }}
+                  >
+                    {contactInfo.phone || "+91 9296454675"}
                   </a>
                 </div>
               </div>

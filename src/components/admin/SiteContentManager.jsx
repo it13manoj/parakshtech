@@ -98,10 +98,17 @@ export const SiteContentManager = () => {
         if (contactRes.data?.data) {
           const d = contactRes.data.data;
           const meta = typeof d.metadata === "string" ? JSON.parse(d.metadata || "{}") : d.metadata || {};
+          const merged = {
+            ...meta,
+            ...(d.contents ? { address: meta.address || d.contents } : {}),
+          };
           setContactForm((prev) => ({
             ...prev,
-            ...meta,
+            ...merged,
           }));
+          try {
+            localStorage.setItem("pt_contact_info", JSON.stringify({ ...contactForm, ...merged }));
+          } catch {}
         }
       } catch {}
     } catch {
@@ -194,6 +201,12 @@ export const SiteContentManager = () => {
       };
 
       await axios.post(`${API.BASE_URL}admin/content/contact_info`, payload, authHeaders);
+
+      try {
+        localStorage.setItem("pt_contact_info", JSON.stringify(contactForm));
+        window.dispatchEvent(new Event("pt_contact_updated"));
+      } catch {}
+
       setToastMsg("Contact details and Footer settings updated successfully!");
       setTimeout(() => setToastMsg(""), 3500);
     } catch (err) {

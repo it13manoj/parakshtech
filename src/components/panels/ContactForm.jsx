@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import API from "../../Config/API";
+import useContactInfo from "../../Config/useContactInfo";
 import SpotlightCard from "../common/SpotlightCard";
 
 export const ContactForm = () => {
@@ -76,31 +77,34 @@ export const ContactForm = () => {
     }
   };
 
+  const contactInfo = useContactInfo();
+  const cleanPhone = (contactInfo.phone || "+91 9296454675").replace(/\s+/g, "");
+
   const contactDetails = [
     {
       title: "Global Headquarters",
-      value: "Pustakalaya Road, Buxar, Bihar, India",
+      value: contactInfo.address || "Pustakalaya Road, Buxar, Bihar, India",
       icon: "fas fa-map-marked-alt",
       action: null,
       accent: "var(--pt-primary)",
     },
     {
       title: "Direct Phone Line",
-      value: "+91 9296454675",
+      value: contactInfo.phone || "+91 9296454675",
       icon: "fas fa-phone-alt",
-      action: "tel:+919296454675",
+      action: `tel:${cleanPhone}`,
       accent: "var(--pt-secondary)",
     },
     {
       title: "Technical Inquiries",
-      value: "support@parakshtech.com",
+      value: contactInfo.email || "support@parakshtech.com",
       icon: "fas fa-envelope-open-text",
-      action: "mailto:support@parakshtech.com",
+      action: `mailto:${contactInfo.email || "support@parakshtech.com"}`,
       accent: "#10b981",
     },
     {
       title: "Working Hours",
-      value: "Mon - Sat: 9:30 AM - 6:30 PM IST",
+      value: contactInfo.workingHours || "Mon - Sat: 9:30 AM - 6:30 PM IST",
       icon: "fas fa-clock",
       action: null,
       accent: "#f59e0b",
@@ -290,7 +294,9 @@ export const ContactForm = () => {
         <iframe
           title="ParakshTech Office Location Map"
           className="w-100"
-          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d7197.821026251528!2d83.97490119660452!3d25.57464380229675!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1765625380298!5m2!1sen!2sin"
+          src={`https://maps.google.com/maps?q=${encodeURIComponent(
+            contactInfo.address || "Pustakalaya Road, Buxar, Bihar, India"
+          )}&t=&z=14&ie=UTF8&iwloc=&output=embed`}
           height="420"
           style={{ border: 0, filter: "grayscale(10%) contrast(1.05)" }}
           allowFullScreen=""
